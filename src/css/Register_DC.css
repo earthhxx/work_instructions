@@ -1,0 +1,296 @@
+.container-box-pdf {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  gap: 10px;
+  /* ระยะห่างระหว่างฟอร์มและ PDF preview */
+
+}
+
+.h1-st {
+  font-size: 25px;
+  text-align: center;
+  margin-bottom: 2rem;
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-box {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  /* แก้ไขคำจาก flex: colum เป็น flex-direction: column */
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  /* margin-top: 3rem; */
+  max-width: 650px;
+  text-align: left;
+  font-size: 15px;
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.model-line-container {
+  display: flex;
+  gap: 20px;
+  /* ระยะห่างระหว่างช่อง */
+}
+
+.field-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.pdf-preview {
+  flex-shrink: 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  padding: 10px;
+  /* margin-top: 3rem; */
+}
+
+.form-box,
+.pdf-preview {
+  width: 50%;
+  height: 800px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  gap: 5px;
+}
+
+.pdf-preview iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.employee-name-box {
+  background-color: #c7c5c5;
+  /* สีพื้นหลังทึบ เช่น เทาเข้ม */
+  color: rgb(12, 12, 12);
+  /* สีตัวอักษร */
+  font-weight: bold;
+  /* ตัวหนา */
+  border: none;
+}
+
+/* input และปุ่ม */
+.input-field,
+.file-upload,
+.submit-button,
+.clickCRUD {
+  width: 100%;
+  padding: 10px 0;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+
+
+.error-text {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+
+
+.submit-button {
+  background-color: #007BFF;
+  color: white;
+  padding: 10px 20px;
+  font-size: 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+.clickCRUD {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.clickCRUD:hover {
+  background-color: #45a049;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal content box */
+
+
+/* Close button */
+.close-button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border-radius: 50%;
+}
+
+.close-button:hover {
+  background-color: darkred;
+}
+
+.scan-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.scan-button {
+  padding: 8px 12px;
+  background-color: #2196f3;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+
+.scan-button:hover {
+  background-color: #1976d2;
+}
+
+
+
+/* Warning Icon */
+.warning-icon {
+  font-size: 60px;
+  margin-bottom: 10px;
+  animation: blink 1s infinite;
+}
+
+/* กระพริบไอคอน */
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes flashIcon {
+  0% {
+    color: red;
+  }
+
+  50% {
+    color: yellow;
+  }
+
+  100% {
+    color: red;
+  }
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal content box */
+.modal-content-rg {
+  position: relative;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow: auto;
+  z-index: 10000;
+  /* สำคัญ: ให้แน่ใจว่าเหนือ PDF Viewer */
+}
+
+.close-button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border-radius: 50%;
+}
+
+.close-button:hover {
+  background-color: darkred;
+}
+
+.flashing-border {
+  animation: flashing 1s infinite;
+  background-color: #eed3d8;
+  border-radius: 12px;
+  text-align: center;
+}
+
+@keyframes flashing {
+  0% {
+    border: 10px solid red;
+  }
+
+  50% {
+    border: 10px solid darkred;
+  }
+
+  100% {
+    border: 10px solid red;
+  }
+}
+
