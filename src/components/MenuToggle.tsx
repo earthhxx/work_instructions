@@ -87,7 +87,7 @@ const MenuToggle = () => {
                     onClick={() => {
                         console.log("test onclick dashboard");
                         setHomeStage('home'); //idk why tf setIsMenuOpen(false); not working
-                        // navigate('/Dashboard');
+                        navigate('/FilterDepartment');
 
                     }}
                     className="flex flex-col justify-center items-center w-full h-full text-white">
@@ -109,7 +109,8 @@ const MenuToggle = () => {
                 </div>
                 <div
                     onClick={() => {
-                       
+                       navigate('/FilterSearch');
+                        setHomeStage('home');
                     }}
                     className="flex flex-col justify-center items-center w-full h-full text-white "
                 >
@@ -120,9 +121,6 @@ const MenuToggle = () => {
             </div>
         </div>
     );
-
-  
-
 
     return (
         <>

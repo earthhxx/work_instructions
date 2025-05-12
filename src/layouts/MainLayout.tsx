@@ -12,7 +12,7 @@ export default function MainLayout({ children }: Props) {
   return (
     <div className={`flex flex-col font-kanit font-normal`}>
       <MenuToggle />
-      <main className="flex-1 p-4 bg-white-50">{children}</main>
+      <main className="flex-1">{children}</main>
     </div>
   )
 }
