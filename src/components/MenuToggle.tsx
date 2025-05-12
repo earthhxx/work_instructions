@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { VscSignIn } from "react-icons/vsc";
 import { MdHistory } from "react-icons/md";
-import { GoCheckCircle } from "react-icons/go";
 import { AiFillHome } from "react-icons/ai";
 // 192.168.130.240
 
@@ -34,10 +33,7 @@ const MenuToggle = () => {
     const menuRef = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 500 });
     const [dragBounds, setDragBounds] = useState({ left: 0, top: 0, right: 0, bottom: 0 });
-    const [productOrderNo, setProductOrderNo] = useState("");
-    const [employeeID, setEmployeeID] = useState("");
-    const cardRef = useRef<HTMLDivElement>(null);
-    const inputRef = useRef<HTMLInputElement | null>(null);
+
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -135,14 +131,7 @@ const MenuToggle = () => {
                 </div>
                 <div
                     onClick={() => {
-                        if (productOrderNo || productOrderNo !== '') {
-                            setHomeStage("home");
-                            navigate(`/StatusPage?productOrderNo=${productOrderNo}`);
-
-                        }
-                        else {
-                            setHomeStage("scan");
-                        }
+                       
                     }}
                     className="flex flex-col justify-center items-center w-full h-full text-white cursor-pointer"
                 >
@@ -166,7 +155,7 @@ const MenuToggle = () => {
                 <div
                     onClick={() => {
                         console.log("test onclick signin");
-                        setHomeStage("signin");
+                        // setHomeStage("signin");
                     }}
                     className="flex flex-col justify-center items-center w-full h-full text-white">
                     <VscSignIn className="size-25 text-white m-4" />
