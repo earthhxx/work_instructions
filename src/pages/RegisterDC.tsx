@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import "../css/Register_DC.css";
+import "../styles/Register_DC.css";
 
 interface Errors {
   text1?: string;

@@ -1,30 +1,13 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { BsUpcScan, BsClipboard2DataFill } from "react-icons/bs";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { VscSignIn } from "react-icons/vsc";
-import { MdHistory } from "react-icons/md";
-import { AiFillHome } from "react-icons/ai";
+import { HiOutlineHome } from "react-icons/hi2";
+import { IoIosSearch } from "react-icons/io";
+import { CiFilter } from "react-icons/ci";
+
 // 192.168.130.240
 
-
-
-// Util สำหรับจัดการ localStorage
-// function setJsonToLocalStorage<T>(key: string, value: T) {
-//     localStorage.setItem(key, JSON.stringify(value));
-//     window.dispatchEvent(new CustomEvent("local-storage-change", { detail: { key, value } }));
-// }
-
-// function getJsonFromLocalStorage<T>(key: string): T | null {
-//     const value = localStorage.getItem(key);
-//     return value ? JSON.parse(value) : null;
-// }
-
-// function removeItemFromLocalStorage(key: string) {
-//     localStorage.removeItem(key);
-//     window.dispatchEvent(new CustomEvent("local-storage-change", { detail: { key, value: null } }));
-// }
 
 const MenuToggle = () => {
     const navigate = useNavigate();
@@ -97,73 +80,42 @@ const MenuToggle = () => {
         <div className="fixed inset-0 flex flex-col w-screen h-screen justify-center items-center z-95 bg-black/20 backdrop-blur-sm">
             <div
                 ref={menuRef}
-                className="grid grid-cols-3 gap-4 size-160 rounded-2xl bg-gray-800/70 backdrop-blur-md shadow-md justify-center items-center drop-shadow-2xl p-4"
+                className="grid grid-cols-3 gap-4 size-fit rounded-2xl bg-gray-800/70 backdrop-blur-md shadow-md justify-center items-center drop-shadow-2xl p-4"
             >
-                <div className="flex w-full h-full"></div>
-                <div
-                    onClick={() => {
-
-                        setHomeStage('home'); //idk why tf setIsMenuOpen(false); not working
-                        navigate ('/');
-
-                    }}
-                    className="flex flex-col justify-center items-center w-full h-full text-white">
-                    <AiFillHome className="size-25 text-white m-4" />
-
-                    <div>HOME</div>
-                    <div className="font-kanit text-xl">หน้าหลัก</div>
-                </div>
-                <div className="flex w-full h-full"></div>
+                
                 <div
                     onClick={() => {
                         console.log("test onclick dashboard");
                         setHomeStage('home'); //idk why tf setIsMenuOpen(false); not working
-                        navigate('/Dashboard');
+                        // navigate('/Dashboard');
 
                     }}
                     className="flex flex-col justify-center items-center w-full h-full text-white">
 
-                    <BsClipboard2DataFill className="size-25 text-white m-4" />
-                    <div>REALTIME CHECK</div>
-                    <div className="font-kanit text-xl">เช็คสถานะ โปรไฟล์</div>
+                    <CiFilter className="size-25 text-white" />
+                    <div>DEPPARTMENT FILTER</div>
+                    <div className={`font-kanit font-light text-lg`}>ตัวกรอง แผนก</div>
+                </div>
+                <div
+                    onClick={() => {
+                        setHomeStage('home');
+                        navigate ('/');
+                    }}
+                    className="flex flex-col justify-center items-center w-full h-full text-white">
+                    <HiOutlineHome className="size-25 text-white" />
 
-
+                    <div>HOME</div>
+                    <div className="font-kanit font-light text-lg">หน้าหลัก</div>
                 </div>
                 <div
                     onClick={() => {
                        
                     }}
-                    className="flex flex-col justify-center items-center w-full h-full text-white cursor-pointer"
+                    className="flex flex-col justify-center items-center w-full h-full text-white "
                 >
-                    <BsUpcScan className="size-25 text-white m-4" />
-                    <div>STANDARD SEARCH</div>
-                    <div className="font-kanit text-xl">ค้นหา ข้อกำหนด</div>
-                </div>
-                <div
-                    onClick={() => {
-                        console.log("test onclick HistoryPage");
-                        setHomeStage('home'); //idk why tf setIsMenuOpen(false); not working
-                        window.location.href = ('http://192.168.120.9:3004/HistoryRefiow');
-
-                    }}
-                    className="flex flex-col justify-center items-center w-full h-full text-white">
-                    <MdHistory className="size-25 text-white m-4" />
-                    <div>HISTORY SEARCH</div>
-                    <div className="font-kanit text-xl">ค้นหาประวัติ</div>
-                </div>
-                <div className="flex w-full h-full"></div>
-                <div
-                    onClick={() => {
-                        console.log("test onclick signin");
-                        // setHomeStage("signin");
-                    }}
-                    className="flex flex-col justify-center items-center w-full h-full text-white">
-                    <VscSignIn className="size-25 text-white m-4" />
-                    <div>SIGN IN</div>
-                    <div className="font-kanit text-xl">ล็อคอิน</div>
-                </div>
-                <div className="flex flex-col justify-center items-center w-full h-full text-white">
-
+                    <IoIosSearch  className="size-25 text-white" />
+                    <div>SEARCH AND FILTER</div>
+                    <div className="font-kanit font-light text-lg">ค้นหา และ ตัวกรอง</div>
                 </div>
             </div>
         </div>
@@ -177,9 +129,9 @@ const MenuToggle = () => {
                 {homeStage === "home" && renderHomeButton()}
                 {homeStage === "menuOpen" && renderMenu()}
 
-                <div className="absolute bottom-5 left-5 text-white">
+                {/* <div className="absolute bottom-5 left-5 text-white">
                     Position: {`X: ${position.x}, Y: ${position.y}`}
-                </div>
+                </div> */}
         </>
     );
 };
