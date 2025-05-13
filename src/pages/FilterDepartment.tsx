@@ -61,25 +61,27 @@ const App = () => {
       </div>
 
       {/* Process Filter */}
-      <div className="flex w-full justify-between mb-6">
-        <div>
-          <h2 className="text-lg font-semibold mb-2 mt-8">Process :</h2>
-          <div className="flex flex-wrap gap-3">
-            {allProcesses.map((proc) => (
-              <button
-                key={proc}
-                onClick={() => setSelectedProcess(proc === selectedProcess ? null : proc)}
-                className={`px-5 py-2 rounded-full font-medium transition ${selectedProcess === proc
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 text-gray-800 hover:bg-blue-100"
-                  }`}
-              >
-                {proc}
-              </button>
-            ))}
-          </div>
-        </div>
+      <div className="w-full mb-6 mt-6">
+        {/* <label htmlFor="process-select" className="block text-lg font-semibold mb-2 mt-8">
+          Process:
+        </label> */}
+        <select
+          id="process-select"
+          value={selectedProcess || ""}
+          onChange={(e) =>
+            setSelectedProcess(e.target.value === "" ? null : e.target.value)
+          }
+          className="w-full md:w-64 px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          <option value="">-- All Processes --</option>
+          {allProcesses.map((proc) => (
+            <option key={proc} value={proc}>
+              {proc}
+            </option>
+          ))}
+        </select>
       </div>
+
 
       {/* Clear Filters */}
       {(selectedDep || selectedProcess || searchTerm) && (
@@ -112,13 +114,13 @@ const App = () => {
 
       {/* Table */}
       <div className="overflow-x-auto w-full rounded-xl border border-gray-200 shadow-sm">
-        <table className="w-full border-collapse text-sm text-left">
+        <table className="w-full border-collapse text-sm lg:text-xl text-left">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-200 px-4 py-2">W_NumberID</th>
-              <th className="border border-gray-200 px-4 py-2">W_DocName</th>
-              <th className="border border-gray-200 px-4 py-2">W_Revision</th>
-              <th className="border border-gray-200 px-4 py-2">Actions</th>
+              <th className="border border-gray-200 px-4 py-2">รหัสเอกสาร</th>
+              <th className="border border-gray-200 px-4 py-2">ชื่อเอกสาร</th>
+              <th className="border border-gray-200 px-4 py-2">การเปลื่ยนแปลง</th>
+              <th className="border border-gray-200 px-4 py-2">PDF File</th>
             </tr>
           </thead>
           <tbody>
