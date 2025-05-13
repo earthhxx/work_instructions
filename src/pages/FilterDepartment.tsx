@@ -151,7 +151,7 @@ const App = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log('onclick',item.W_PDFs); // ป้องกัน trigger ซ้ำจาก onClick ที่ parent div
+                  console.log('onclick', item.W_PDFs); // ป้องกัน trigger ซ้ำจาก onClick ที่ parent div
                   handleShowPdf(item.W_PDFs);
                 }}
                 className="mt-4 px-4 py-2 bg-blue-800 text-white rounded-full hover:bg-blue-600"
@@ -163,22 +163,28 @@ const App = () => {
         </div>
       </div>
 
-      {/* PDF Viewer */}
       {pdfUrl && (
-        <div className=" fixed mt-8 w-full max-w-4xl">
-          <h3 className="text-lg font-bold mb-4 text-center">🔎 PDF Viewer</h3>
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <div 
-            onClick={() => setPdfUrl(null)}
-            className="fixed flex justify-center items-center size-18 m-4 p-4 text-4xl bg-red-700 rounded-full">
-            x</div>
+        <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-[1920px] h-full relative">
+            {/* ปุ่มปิด PDF */}
+            <button
+              className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 z-50"
+              onClick={() => setPdfUrl(null)}
+            >
+              ❌ ปิด PDF
+            </button>
+
+            {/* PDF Iframe */}
             <iframe
               src={pdfUrl}
               title="PDF Preview"
+              className="w-full h-full rounded shadow-lg"
+              frameBorder="0"
             />
           </div>
         </div>
       )}
+
     </div>
   );
 };
