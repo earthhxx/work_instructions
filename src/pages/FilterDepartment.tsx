@@ -150,8 +150,8 @@ const App = () => {
 
       {/* PDF Viewer */}
       {pdfUrl && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex flex-col items-center justify-center p-4">
-          <div className="w-full max-w-[90vw] h-[90vh] relative bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="fixed h-full w-full bg-black bg-opacity-70 z-50 flex flex-col items-center justify-center">
+          <div className="w-full h-full relative bg-white rounded-xl shadow-lg overflow-hidden">
             <button
               className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 z-50"
               onClick={() => setPdfUrl(null)}
