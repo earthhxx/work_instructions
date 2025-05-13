@@ -5,7 +5,23 @@ interface CategoryProps {
 }
 
 const Category = ({ department }: CategoryProps) => {
-  const cate1 = ["EN-CAT1", "EN-CAT2"];
+  const cate1 = [
+  "LASER",
+  "Loading",
+  "Printer",
+  "SPI",
+  "Mouter",
+  "AOI",
+  "ICT",
+  "Remove FPC",
+  "FCT",
+  "Blanking",
+  "Oven",
+  "X-Ray",
+  "Coating",
+  "Router",
+  "Image Checker"
+];
   const cate2 = ["QA-CAT1", "QA-CAT2"];
   const cate3 = ["PRO-CAT1", "PRO-CAT2"];
   const cate4 = ["WH-CAT1", "WH-CAT2"];
@@ -93,7 +109,6 @@ const FilterDepartment = () => {
               {dept}
             </button>
           ))}
-
         </div>
 
 

@@ -138,29 +138,55 @@ app.post("/api/insert/:dbName", upload.single("file"), async (req, res) => {
   }
 });
 
-// ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''API for Select''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-/// 🟢 API สำหรับดึงข้อมูลจากฐานข้อมูล Result
-app.get('/api/Result', async (req, res) => {
+
+// select list Process
+app.get('/api/Process', async (req, res) => {
+  try {
+    await getDatabaseConnection("db1");
+    const result = await sql.query(
+      'SELECT distinct [W_Process] FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]'
+    );
+    // ส่งข้อมูลกลับ frontend
+    res.json(result.recordset);
+
+  } catch (err) {
+    console.error("❌ Error fetching data:", err);
+    res.status(500).send('Error fetching data');
+  } finally {
+    await sql.close();
+  }
+});
+
+
+// Select show result document
+
+app.get('/api/ShowResult', async (req, res) => {
   try {
     await getDatabaseConnection("db1");
 
     const result = await sql.query(`
-      SELECT [id]
-            ,[W_NumberID]
-            ,[W_Revision]
-            ,[W_DocName]
-            ,[W_Dep]
-            ,[W_Process]
-            ,[W_PDFs]
-            ,[W_name]
-            ,[Datetime]
-      FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]
-      ORDER BY [Datetime] DESC
+      WITH RankedDocs AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY W_NumberID ORDER BY Datetime DESC) AS rn
+    FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]
+)
+SELECT [id],
+       [W_NumberID],
+       [W_Revision],
+       [W_DocName],
+       [W_Dep],
+       [W_Process],
+       [W_PDFs],
+       [W_name],
+       [Datetime]
+FROM RankedDocs
+WHERE rn = 1
+ORDER BY W_NumberID 
     `);
 
     // ส่งข้อมูลกลับ frontend
     res.json(result.recordset);
-    
+
   } catch (err) {
     console.error("❌ Error fetching data:", err);
     res.status(500).send('Error fetching data');
