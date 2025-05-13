@@ -119,7 +119,7 @@ const App = () => {
             <tr className="bg-gray-100">
               <th className="border border-gray-200 px-4 py-2">รหัสเอกสาร</th>
               <th className="border border-gray-200 px-4 py-2">ชื่อเอกสาร</th>
-              <th className="border border-gray-200 px-4 py-2">การเปลื่ยนแปลง</th>
+              <th className="border border-gray-200 px-4 py-2">รีวิชั่น</th>
               <th className="border border-gray-200 px-4 py-2">PDF File</th>
             </tr>
           </thead>
