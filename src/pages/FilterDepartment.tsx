@@ -59,9 +59,11 @@ const App = () => {
         </div>
 
       </div>
+      
 
       {/* Process Filter */}
       <div className="w-full mb-6 mt-6">
+        <h1 className="text-3xl font-bold mb-6">🔍 ค้นหา เอกสารสำหรับกระบวนการทำงาน</h1>
         {/* <label htmlFor="process-select" className="block text-lg font-semibold mb-2 mt-8">
           Process:
         </label> */}
@@ -119,7 +121,7 @@ const App = () => {
             <tr className="bg-gray-100">
               <th className="border border-gray-200 px-4 py-2">รหัสเอกสาร</th>
               <th className="border border-gray-200 px-4 py-2">ชื่อเอกสาร</th>
-              <th className="border border-gray-200 px-4 py-2">รีวิชั่น</th>
+              <th className="border border-gray-200 px-4 py-2">revision</th>
               <th className="border border-gray-200 px-4 py-2">PDF File</th>
             </tr>
           </thead>
