@@ -43,7 +43,6 @@ const App = () => {
     const matchSearchTerm =
       d.W_Dep.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.W_Process.toLowerCase().includes(searchTerm.toLowerCase());
-
     return matchDep && matchProc && matchSearchTerm; // ฟิลเตอร์ด้วย searchTerm
   });
 
