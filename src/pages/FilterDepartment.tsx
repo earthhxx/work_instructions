@@ -1,99 +1,113 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-const departments = ["EN", "PRO", "QA", "WH"];
-
-interface DocumentData {
-  id: number;
-  W_NumberID: string;
-  W_Revision: string;
-  W_DocName: string;
-  W_Dep: string;
-  W_Process: string;
-  W_PDFs: string;
-  W_name: string;
-  Datetime: string;
+interface CategoryProps {
+  department: "EN" | "PRO" | "QA" | "WH";
 }
 
-const FilterDepartment = () => {
-  const [selectedDept, setSelectedDept] = useState<string | null>(null);
-  const [documents, setDocuments] = useState<DocumentData[]>([]);
-  const [loading, setLoading] = useState(false);
+const Category = ({ department }: CategoryProps) => {
+  const cate1 = ["EN-CAT1", "EN-CAT2"];
+  const cate2 = ["QA-CAT1", "QA-CAT2"];
+  const cate3 = ["PRO-CAT1", "PRO-CAT2"];
+  const cate4 = ["WH-CAT1", "WH-CAT2"];
+
+  const [maincate, setMaincate] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchDocuments = async () => {
-      if (!selectedDept) return;
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `http://localhost:3010/api/documents?dept=${selectedDept}`
-        );
-        const data = await response.json();
-        setDocuments(data);
-      } catch (error) {
-        console.error("Failed to fetch documents:", error);
-        setDocuments([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDocuments();
-  }, [selectedDept]);
+    if (department === "EN") {
+      setMaincate(cate1);
+    } else if (department === "QA") {
+      setMaincate(cate2);
+    } else if (department === "PRO") {
+      setMaincate(cate3);
+    } else if (department === "WH") {
+      setMaincate(cate4);
+    }
+  }, [department]);
 
   return (
-    <div className="flex flex-col justify-center items-center w-screen min-h-screen bg-gray-900 p-8">
-      <h1 className="text-white text-3xl font-bold">Filter Department</h1>
-      <p className="text-gray-400 mt-4 mb-8">Select a department to filter:</p>
+    <section className="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-16">
+      <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
+        <div className="mb-4 flex items-center justify-between gap-4 md:mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
+            Process
+          </h2>
+        </div>
 
-      <div className="flex flex-wrap gap-4 justify-center">
-        {departments.map((dept) => (
-          <button
-            key={dept}
-            onClick={() => setSelectedDept(dept)}
-            className={`px-6 py-3 rounded-full font-semibold transition duration-300 ${
-              selectedDept === dept
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {maincate.map((cat, index) => (
+            <a
+              key={index}
+              href="#"
+              className="flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+            >
+              <svg
+                className="me-2 h-4 w-4 shrink-0 text-gray-900 dark:text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 15v5m-3 0h6M4 11h16M5 15h14a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1Z"
+                />
+              </svg>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                {cat}
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+
+const FilterDepartment = () => {
+  const [isCategoryVisible, setIsCategoryVisible] = useState(false);
+  const departments: Array<"EN" | "PRO" | "QA" | "WH"> = ["EN", "PRO", "QA", "WH"];
+  const [departmentStates, setDepartmentStates] = useState<"EN" | "PRO" | "QA" | "WH" | "none">("none");
+
+  return (
+    <>
+      <div className="flex flex-col justify-center items-center w-screen min-h-screen bg-gray-900 p-8">
+        <h1 className="text-white text-3xl font-bold">Filter Department</h1>
+        <p className="text-gray-400 mt-4 mb-8">Select a department to filter:</p>
+
+        <div className="flex flex-wrap gap-4 justify-center">
+          {departments.map((dept) => (
+            <button
+              key={dept}
+              onClick={() => {
+                setDepartmentStates(dept);
+                setIsCategoryVisible(true);
+              }}
+              className={`px-6 py-3 rounded-full font-semibold transition duration-300 ${departmentStates === dept
                 ? "bg-blue-500 text-white"
                 : "bg-gray-200 text-gray-800 hover:bg-blue-400 hover:text-white"
-            }`}
-          >
-            {dept}
-          </button>
-        ))}
-      </div>
-
-      {selectedDept && (
-        <div className="mt-10 text-white text-lg">
-          🔍 Showing results for: <span className="font-bold">{selectedDept}</span>
-        </div>
-      )}
-
-      <div className="mt-6 w-full max-w-4xl">
-        {loading ? (
-          <p className="text-white">Loading...</p>
-        ) : (
-          documents.map((doc) => (
-            <div
-              key={doc.id}
-              className="bg-white rounded-xl p-4 mb-4 shadow-md text-gray-800"
+                }`}
             >
-              <h2 className="font-bold text-lg">{doc.W_DocName}</h2>
-              <p>Document No: {doc.W_NumberID}-{doc.W_Revision}</p>
-              <p>Process: {doc.W_Process}</p>
-              <p>Created by: {doc.W_name}</p>
-              <p className="text-sm text-gray-600">Datetime: {doc.Datetime}</p>
-              <a
-                href={doc.W_PDFs}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline mt-2 block"
-              >
-                🔗 View PDF
-              </a>
-            </div>
-          ))
+              {dept}
+            </button>
+          ))}
+
+        </div>
+
+
+        {departmentStates && (
+          <div className="mt-10 text-white text-lg">
+            🔍 Showing results for: <span className="font-bold">{departmentStates}</span>
+          </div>
         )}
+        {isCategoryVisible && departmentStates !== "none" && (
+        <Category department={departmentStates} />
+      )}
       </div>
-    </div>
+    </>
+
   );
 };
 
