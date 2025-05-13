@@ -202,7 +202,7 @@ ORDER BY W_NumberID
 app.get("/api/open-pdf", async (req, res) => {
   const filePath = req.query.path;
 
-  const allowedRoot = "\\192.168.120.6\\02 Department\\10 Sharing Center\\05 IT\\Document";
+  const allowedRoot = "\\\\192.168.120.6\\02 Department\\10 Sharing Center\\05 IT\\Document";
   if (!filePath || !filePath.startsWith(allowedRoot)) {
     return res.status(403).send("Access denied");
   }

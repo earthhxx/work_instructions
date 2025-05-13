@@ -47,8 +47,8 @@ const App = () => {
     return matchDep && matchProc && matchSearchTerm; // ฟิลเตอร์ด้วย searchTerm
   });
 
-  const handleShowPdf = (W_PDFs: string) => {
-    const url = `/api/open-pdf?path=${encodeURIComponent(W_PDFs)}`;
+  const handleShowPdf = (PDFPATH: string) => {
+    const url = `http://192.168.130.240:5006/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
     console.log(url)
     setPdfUrl(url); // ตั้งค่า URL ของ PDF
   };
@@ -151,7 +151,8 @@ const App = () => {
               </div>
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // ป้องกัน trigger ซ้ำจาก onClick ที่ parent div
+                  e.stopPropagation();
+                  console.log('onclick',item.W_PDFs); // ป้องกัน trigger ซ้ำจาก onClick ที่ parent div
                   handleShowPdf(item.W_PDFs);
                 }}
                 className="mt-4 px-4 py-2 bg-blue-800 text-white rounded-full hover:bg-blue-600"
@@ -174,10 +175,7 @@ const App = () => {
             x</div>
             <iframe
               src={pdfUrl}
-              width="100%"
-              height="600px"
               title="PDF Preview"
-              frameBorder="0"
             />
           </div>
         </div>
