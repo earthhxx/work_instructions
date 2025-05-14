@@ -49,7 +49,9 @@ const App = () => {
     const matchProc = selectedProcess ? d.W_Process === selectedProcess : true;
     const matchSearchTerm =
       d.W_Dep.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      d.W_Process.toLowerCase().includes(searchTerm.toLowerCase());
+      d.W_Process.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      d.W_NumberID.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      d.W_DocName.toLowerCase().includes(searchTerm.toLowerCase());
     return matchDep && matchProc && matchSearchTerm;
   });
 
