@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { SpecialZoomLevel, Viewer, Worker } from "@react-pdf-viewer/core";
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+
 
 interface DocumentType {
   id: number;
@@ -19,6 +24,8 @@ const App = () => {
   const [selectedProcess, setSelectedProcess] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const defaultLayoutPluginInstance = defaultLayoutPlugin();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,12 +61,12 @@ const App = () => {
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col items-center px-4">
       <div className="rerative ">
-        <div className="absolute top-2 right-0 me-2">
-          <img src="/public/images/LOGO.png" alt="Logo" className="h-25 w-auto mt-2" />
+        <div className="xl:absolute top-2 right-0 me-2 ">
+          <img src="/public/images/LOGO.png" alt="Logo" className="h-20 w-[300px] xl:auto mt-2" />
         </div>
 
       </div>
-      
+
 
       {/* Process Filter */}
       <div className="w-full mb-6 mt-6">
@@ -73,7 +80,7 @@ const App = () => {
           onChange={(e) =>
             setSelectedProcess(e.target.value === "" ? null : e.target.value)
           }
-          className="w-full md:w-64 px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full max-w-xl md:w-64 px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
           <option value="">-- All Processes --</option>
           {allProcesses.map((proc) => (
@@ -158,12 +165,13 @@ const App = () => {
             >
               ❌ ปิด PDF
             </button>
-            <iframe
-              src={pdfUrl}
-              title="PDF Preview"
-              className="w-full h-full"
-              frameBorder="0"
-            />
+            <Worker workerUrl="/pdf.worker.min.js">
+              <Viewer
+                fileUrl={pdfUrl}
+                defaultScale={SpecialZoomLevel.PageFit}
+                plugins={[defaultLayoutPluginInstance]}
+              />
+            </Worker>
           </div>
         </div>
       )}
