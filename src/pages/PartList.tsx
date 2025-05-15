@@ -39,7 +39,28 @@ const main = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [homeStage]);
+    useEffect(() => {
+        const checkPdfAccess = async () => {
+            try {
+                const testUrl = `http://192.168.130.240:5006/api/open-pdf?path=${encodeURIComponent("\\192.168.120.9\\DataDocument\\SD-PD-03-00 ขั้นตอนการจัดการเมื่อ AOI ตรวจพบ NG.pdf")}`;
+                console.log("Checking PDF access with URL:", testUrl);
+                const response = await axios.head(testUrl);
+                if (response.status !== 200) {
+                    console.warn("PDF access check failed with status:", response.status);
+                } else {
+                    console.log("PDF access check succeeded.");
+                }
+            } catch (err) {
+                if (axios.isAxiosError(err)) {
+                    console.error("❌ Axios error while checking PDF access:", err.message, "\nResponse:", err.response);
+                } else {
+                    console.error("❌ Unexpected error while checking PDF access:", err);
+                }
+            }
+        };
 
+        checkPdfAccess();
+    }, []);
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -185,7 +206,7 @@ const main = () => {
                         </div>
                         <div
                             onClick={() => {
-                                handleShowPdf("");
+                                handleShowPdf(""\\192.168.120.9\DataDocument\SD-FC-EN-04-02 ขั้นตอนการเปลี่ยนแปลงโปรแกรม AOI.pdf"");
                                 setHomeStage("pdf");
 
                             }}

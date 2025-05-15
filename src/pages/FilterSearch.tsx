@@ -29,12 +29,14 @@ const App = () => {
     const fetchData = async () => {
       try {
         const res = await axios.get("/api/ShowResult");
+        console.log(res);
         setData(res.data);
       } catch (err) {
         console.error("❌ Error fetching data:", err);
       } finally {
         setLoading(false);
         console.log(loading);
+        
       }
     };
     fetchData();
