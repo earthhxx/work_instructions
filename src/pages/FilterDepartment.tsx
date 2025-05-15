@@ -44,7 +44,7 @@ const App = () => {
     setPdfUrl(url);
   };
 
-  const custom_NumderID = ['QM','QP','WI','FM','SD'];
+  const custom_NumderID = ['WI', 'SM', 'SD', 'QP', 'QM'];
   const [selectedDep, setSelectedDep] = useState<string | null>(null);
   const [selectedProcess, setSelectedProcess] = useState<string | null>(null);
   const [selectedNumberID, setSelectedNumberID] = useState<string | null>(null);
@@ -64,16 +64,16 @@ const App = () => {
       d.W_NumberID.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.W_DocName.toLowerCase().includes(searchTerm.toLowerCase());
     return matchDep && matchProc && matchSearchTerm && matchNumberID;
-    
+
   });
 
-  
+
 
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col items-center px-4">
       <div className="rerative ">
         <div className="lg:absolute top-2 right-0 me-2 ">
-          <img src="/public/images/LOGO.png" alt="Logo" className="h-20 w-[300px] xl:auto mt-2" />
+          <img src="/public/images/LOGO.png" alt="Logo" className="h-15 lg:h-20 lg:w-[300px] xl:auto mt-4" />
         </div>
 
       </div>
@@ -86,21 +86,39 @@ const App = () => {
           Process:
         </label> */}
         <div className="flex flex-col gap-4">
-          <select
-            id="process-select"
-            value={selectedProcess || ""}
-            onChange={(e) =>
-              setSelectedProcess(e.target.value === "" ? null : e.target.value)
-            }
-            className="w-full lg:w-xl px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <option value="">-- All Processes --</option>
-            {allProcesses.map((proc) => (
-              <option key={proc} value={proc}>
-                {proc}
-              </option>
-            ))}
-          </select>
+          <div className="flex gap-4 items-center">
+            <select
+              id="process-select"
+              value={selectedProcess || ""}
+              onChange={(e) =>
+                setSelectedProcess(e.target.value === "" ? null : e.target.value)
+              }
+              className="w-[25%] lg:w-[10%] px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <option value="">-- All Processes --</option>
+              {allProcesses.map((proc) => (
+                <option key={proc} value={proc}>
+                  {proc}
+                </option>
+              ))}
+            </select>
+            {/* Clear Filters */}
+            {(selectedDep || selectedProcess || searchTerm) && (
+              <div className="flex w-full justify-start items-center">
+                <button
+                  onClick={() => {
+                    setSelectedDep(null);
+                    setSelectedProcess(null);
+                    setSearchTerm("");
+                  }}
+                  className="px-5 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-full"
+                >
+                  ❌ Clear Filters
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* <select
             id="DocID-select"
             value={selectedNumberID || ""}
@@ -116,48 +134,40 @@ const App = () => {
               </option>
             ))}
           </select> */}
-            <div className="grid grid-cols-5 lg:grid-cols-5 w-full lg:w-xl gap-4">
-            {custom_NumderID.map((NumID) => (
-              <button
-              key={NumID}
-              onClick={() =>
-                setSelectedNumberID(selectedNumberID === NumID ? null : NumID)
-              }
-              className={`px-4 py-2 rounded-lg shadow-sm text-center ${
-                selectedNumberID === NumID
-                ? "bg-blue-800 text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              }`}
-              >
-              {NumID}
-              </button>
-            ))}
+          <div className="w-[60%] lg:w-[25%] rounded-full bg-blue-100 bg-blend-darken p-2 ">
+            <div className="grid grid-cols-5 gap-4 mx-auto">
+              {custom_NumderID.map((NumID) => {
+                const isSelected = selectedNumberID === NumID;
+
+                return (
+                  <button
+                    key={NumID}
+                    type="button"
+                    onClick={() =>
+                      setSelectedNumberID(isSelected ? null : NumID)
+                    }
+                    aria-pressed={isSelected}
+                    className={`w-full py-3 px-4 rounded-full border text-sm font-medium transition-all duration-200 ease-in-out
+          ${isSelected
+                        ? "bg-blue-700 text-white shadow-md ring-2 ring-blue-300"
+                        : "bg-white text-gray-800 hover:bg-gray-100 border-gray-300"
+                      }`}
+                  >
+                    {NumID}
+                  </button>
+                );
+              })}
             </div>
+
+          </div>
+
         </div>
 
       </div>
 
-
-
-      {/* Clear Filters */}
-      {(selectedDep || selectedProcess || searchTerm) && (
-        <div className="flex w-full justify-start items-center mb-4">
-          <button
-            onClick={() => {
-              setSelectedDep(null);
-              setSelectedProcess(null);
-              setSearchTerm("");
-            }}
-            className="px-5 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-full"
-          >
-            ❌ Clear Filters
-          </button>
-        </div>
-      )}
-
       {/* Search Bar */}
       <div className="flex items-center justify-start w-full mb-6">
-        <div className="w-full lg:w-xl">
+        <div className="w-full lg:w-[40%]">
           <input
             type="text"
             placeholder="Search..."
