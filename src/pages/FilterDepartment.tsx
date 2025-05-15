@@ -20,9 +20,6 @@ interface DocumentType {
 const App = () => {
   const [data, setData] = useState<DocumentType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDep, setSelectedDep] = useState<string | null>(null);
-  const [selectedProcess, setSelectedProcess] = useState<string | null>(null);
-  const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
@@ -42,26 +39,34 @@ const App = () => {
     fetchData();
   }, []);
 
+  const handleShowPdf = (PDFPATH: string) => {
+    const url = `http://192.168.130.240:5006/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
+    setPdfUrl(url);
+  };
+
+  const custom_NumderID = ['SD','QA','DB'];
+  const [selectedDep, setSelectedDep] = useState<string | null>(null);
+  const [selectedProcess, setSelectedProcess] = useState<string | null>(null);
+  const [selectedNumberID, setSelectedNumberID] = useState<string | null>(null);
+
   const allDeps = Array.from(new Set(data.map((d) => d.W_Dep).filter(Boolean)));
   const allProcesses = Array.from(new Set(data.map((d) => d.W_Process).filter(Boolean)));
-  const allDoc = Array.from(new Set(data.map((d)=>d.W_DocName).filter(Boolean)));
+  // const allNumberID = Array.from(new Set(data.map((d) => d.W_NumberID).filter(Boolean)));
 
   const filteredData = data.filter((d) => {
     const matchDep = selectedDep ? d.W_Dep === selectedDep : true;
     const matchProc = selectedProcess ? d.W_Process === selectedProcess : true;
-    const matchDoc = selectedDoc ?d.W_DocName === selectedDoc :true;
+    // const matchNumberID = selectedNumberID ? d.W_NumberID === selectedNumberID : true;
+    const matchNumberID = selectedNumberID ? d.W_NumberID.includes(selectedNumberID) : true;
     const matchSearchTerm =
       d.W_Dep.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.W_Process.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.W_NumberID.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.W_DocName.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchDep && matchProc && matchSearchTerm;
+    return matchDep && matchProc && matchSearchTerm && matchNumberID;
   });
 
-  const handleShowPdf = (PDFPATH: string) => {
-    const url = `http://192.168.130.240:5006/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
-    setPdfUrl(url);
-  };
+  
 
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col items-center px-4">
@@ -79,22 +84,41 @@ const App = () => {
         {/* <label htmlFor="process-select" className="block text-lg font-semibold mb-2 mt-8">
           Process:
         </label> */}
-        <select
-          id="process-select"
-          value={selectedProcess || ""}
-          onChange={(e) =>
-            setSelectedProcess(e.target.value === "" ? null : e.target.value)
-          }
-          className="w-full max-w-xl md:w-64 px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          <option value="">-- All Processes --</option>
-          {allProcesses.map((proc) => (
-            <option key={proc} value={proc}>
-              {proc}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-col gap-4">
+          <select
+            id="process-select"
+            value={selectedProcess || ""}
+            onChange={(e) =>
+              setSelectedProcess(e.target.value === "" ? null : e.target.value)
+            }
+            className="w-full xl:w-xl max-w-xl px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="">-- All Processes --</option>
+            {allProcesses.map((proc) => (
+              <option key={proc} value={proc}>
+                {proc}
+              </option>
+            ))}
+          </select>
+          <select
+            id="DocID-select"
+            value={selectedNumberID || ""}
+            onChange={(e) =>
+              setSelectedNumberID(e.target.value === "" ? null : e.target.value)
+            }
+            className="w-full xl:w-xl max-w-xl px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="">-- All DOCUMENT ID --</option>
+            {custom_NumderID.map((NumID) => (
+              <option key={NumID} value={NumID}>
+                {NumID}
+              </option>
+            ))}
+          </select>
+        </div>
+
       </div>
+
 
 
       {/* Clear Filters */}
