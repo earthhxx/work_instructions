@@ -90,14 +90,16 @@ const App = () => {
 
       {/* Process Filter */}
       <div className="w-full mb-4 mt-2">
-        <h1 className="w-full lg:w-xl text-center lg:text-start text-3xl font-bold mb-6">🔍 ค้นหา เอกสารสำหรับกระบวนการทำงาน</h1>
+        <div className="flex justify-center mt-4">
+          <h1 className="w-full lg:w-xl text-center text-3xl font-bold mb-6">🔍 ค้นหา เอกสารสำหรับกระบวนการทำงาน</h1>
+        </div>
         {/* <label htmlFor="process-select" className="block text-lg font-semibold mb-2 mt-8">
           Process:
         </label> */}
         <div className="flex flex-col gap-4">
-          <div className="flex w-full gap-4 items-center justify-center-safe">
-            <div className="w-[25%]"></div>
-            <div className="w-[50%] lg:w-[10%]">
+          <div className="flex w-full gap-4 items-center justify-center-safe lg:justify-start">
+            <div className="w-[25%] lg:w-0"></div>
+            <div className="w-[50%] lg:w-[30%]">
               <select
                 id="process-select"
                 value={selectedProcess || ""}
@@ -114,7 +116,7 @@ const App = () => {
                 ))}
               </select>
             </div>
-            <div className="w-[25%]"> {/* Clear Filters */}
+            <div className="w-[25%] lg:w-[10%]"> {/* Clear Filters */}
               {(selectedDep || selectedProcess || searchTerm) && (
                 <div className="flex w-full justify-center items-center">
                   <button
@@ -134,13 +136,12 @@ const App = () => {
 
         </div>
       </div>
-
       {selectedProcess && (() => {
         const filteredNumIDs = custom_NumderID.filter((numid) =>
           data.some((d) => d.W_NumberID.includes(numid) && d.W_Process === selectedProcess)
         );
         return filteredNumIDs.length > 0 ? (
-          <div className="flex gap-4">
+          <div className="flex w-full justify-center items-center lg:justify-start lg:items-start gap-4">
             {filteredNumIDs.map((numid) => {
               const isSelected = selectedNumberID === numid;
 
@@ -150,9 +151,9 @@ const App = () => {
                   type="button"
                   onClick={() => setSelectedNumberID(isSelected ? null : numid)}
                   aria-pressed={isSelected}
-                  className={`w-full py-3 px-4 rounded-full border text-sm font-medium transition-all duration-200 ease-in-out
+                  className={`w-[8%] lg:w-[5%] py-3 px-4 rounded-2xl border text-sm text-center font-medium transition-all duration-200 ease-in-out
               ${isSelected
-                      ? "bg-green-700 text-white shadow-md ring-2 ring-green-300"
+                      ? "bg-blue-900 text-white shadow-md ring-2 ring-blue-300"
                       : "bg-white text-gray-800 hover:bg-gray-100 border-gray-300"
                     }`}
                 >
@@ -224,7 +225,7 @@ const App = () => {
             <Worker workerUrl="/pdf.worker.min.js">
               <Viewer
                 fileUrl={pdfUrl}
-                defaultScale={SpecialZoomLevel.PageFit}
+                defaultScale={1.0}
                 plugins={[defaultLayoutPluginInstance]}
               />
             </Worker>
