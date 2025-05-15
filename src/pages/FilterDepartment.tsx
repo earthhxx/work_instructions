@@ -44,7 +44,7 @@ const App = () => {
     setPdfUrl(url);
   };
 
-  const custom_NumderID = ['SD','QA','DB'];
+  const custom_NumderID = ['QM','QP','WI','FM','SD'];
   const [selectedDep, setSelectedDep] = useState<string | null>(null);
   const [selectedProcess, setSelectedProcess] = useState<string | null>(null);
   const [selectedNumberID, setSelectedNumberID] = useState<string | null>(null);
@@ -64,6 +64,7 @@ const App = () => {
       d.W_NumberID.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.W_DocName.toLowerCase().includes(searchTerm.toLowerCase());
     return matchDep && matchProc && matchSearchTerm && matchNumberID;
+    
   });
 
   
@@ -71,7 +72,7 @@ const App = () => {
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col items-center px-4">
       <div className="rerative ">
-        <div className="xl:absolute top-2 right-0 me-2 ">
+        <div className="lg:absolute top-2 right-0 me-2 ">
           <img src="/public/images/LOGO.png" alt="Logo" className="h-20 w-[300px] xl:auto mt-2" />
         </div>
 
@@ -80,7 +81,7 @@ const App = () => {
 
       {/* Process Filter */}
       <div className="w-full mb-6 mt-6">
-        <h1 className="text-3xl font-bold mb-6">🔍 ค้นหา เอกสารสำหรับกระบวนการทำงาน</h1>
+        <h1 className="w-full lg:w-xl text-center lg:text-start text-3xl font-bold mb-6">🔍 ค้นหา เอกสารสำหรับกระบวนการทำงาน</h1>
         {/* <label htmlFor="process-select" className="block text-lg font-semibold mb-2 mt-8">
           Process:
         </label> */}
@@ -91,7 +92,7 @@ const App = () => {
             onChange={(e) =>
               setSelectedProcess(e.target.value === "" ? null : e.target.value)
             }
-            className="w-full xl:w-xl max-w-xl px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full lg:w-xl px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="">-- All Processes --</option>
             {allProcesses.map((proc) => (
@@ -100,7 +101,7 @@ const App = () => {
               </option>
             ))}
           </select>
-          <select
+          {/* <select
             id="DocID-select"
             value={selectedNumberID || ""}
             onChange={(e) =>
@@ -114,7 +115,24 @@ const App = () => {
                 {NumID}
               </option>
             ))}
-          </select>
+          </select> */}
+            <div className="grid grid-cols-5 lg:grid-cols-5 w-full lg:w-xl gap-4">
+            {custom_NumderID.map((NumID) => (
+              <button
+              key={NumID}
+              onClick={() =>
+                setSelectedNumberID(selectedNumberID === NumID ? null : NumID)
+              }
+              className={`px-4 py-2 rounded-lg shadow-sm text-center ${
+                selectedNumberID === NumID
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+              }`}
+              >
+              {NumID}
+              </button>
+            ))}
+            </div>
         </div>
 
       </div>
@@ -139,7 +157,7 @@ const App = () => {
 
       {/* Search Bar */}
       <div className="flex items-center justify-start w-full mb-6">
-        <div className="w-full max-w-xl">
+        <div className="w-full lg:w-xl">
           <input
             type="text"
             placeholder="Search..."
