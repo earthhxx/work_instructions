@@ -2,7 +2,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { HiOutlineHome } from "react-icons/hi2";
 import { IoIosSearch } from "react-icons/io";
 import { CiFilter } from "react-icons/ci";
 
@@ -80,14 +79,14 @@ const MenuToggle = () => {
         <div className="fixed inset-0 flex flex-col w-screen h-screen justify-center items-center z-95 bg-black/20 backdrop-blur-sm">
             <div
                 ref={menuRef}
-                className="grid grid-cols-3 gap-4 size-fit rounded-2xl bg-gray-800/70 backdrop-blur-md shadow-md justify-center items-center drop-shadow-2xl p-4"
+                className="grid grid-cols-2 gap-4 size-fit rounded-2xl bg-gray-800/70 backdrop-blur-md shadow-md justify-center items-center drop-shadow-2xl p-4"
             >
                 
                 <div
                     onClick={() => {
-                        console.log("test onclick dashboard");
+                        console.log("test onclick Page");
                         setHomeStage('home'); //idk why tf setIsMenuOpen(false); not working
-                        navigate('/FilterDepartment');
+                        navigate('/test');
 
                     }}
                     className="flex flex-col justify-center items-center w-full h-full text-white">
@@ -95,17 +94,6 @@ const MenuToggle = () => {
                     <CiFilter className="size-25 text-white" />
                     <div>DEPPARTMENT FILTER</div>
                     <div className={`font-kanit font-light text-lg`}>ตัวกรอง แผนก</div>
-                </div>
-                <div
-                    onClick={() => {
-                        setHomeStage('home');
-                        navigate ('/');
-                    }}
-                    className="flex flex-col justify-center items-center w-full h-full text-white">
-                    <HiOutlineHome className="size-25 text-white" />
-
-                    <div>HOME</div>
-                    <div className="font-kanit font-light text-lg">หน้าหลัก</div>
                 </div>
                 <div
                     onClick={() => {
