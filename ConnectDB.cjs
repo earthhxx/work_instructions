@@ -6,7 +6,7 @@ const path = require("path");
 const cors = require("cors");
 
 // Network path (ต้องแน่ใจว่า server เข้าถึงได้)
-const networkPath = "\\\\192.168.120.6\\02 Department\\10 Sharing Center\\05 IT\\Document";
+const networkPath = "\\\\192.168.120.9\\DataDocument";
 
 const app = express();
 app.use(cors());
@@ -202,7 +202,7 @@ ORDER BY W_NumberID
 app.get("/api/open-pdf", async (req, res) => {
   const filePath = req.query.path;
 
-  const allowedRoot = "\\\\192.168.120.6\\02 Department\\10 Sharing Center\\05 IT\\Document";
+  const allowedRoot = "\\\\192.168.120.9\\DataDocument";
   if (!filePath || !filePath.startsWith(allowedRoot)) {
     return res.status(403).send("Access denied");
   }

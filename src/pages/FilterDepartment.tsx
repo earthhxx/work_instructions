@@ -22,6 +22,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDep, setSelectedDep] = useState<string | null>(null);
   const [selectedProcess, setSelectedProcess] = useState<string | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
@@ -43,10 +44,12 @@ const App = () => {
 
   const allDeps = Array.from(new Set(data.map((d) => d.W_Dep).filter(Boolean)));
   const allProcesses = Array.from(new Set(data.map((d) => d.W_Process).filter(Boolean)));
+  const allDoc = Array.from(new Set(data.map((d)=>d.W_DocName).filter(Boolean)));
 
   const filteredData = data.filter((d) => {
     const matchDep = selectedDep ? d.W_Dep === selectedDep : true;
     const matchProc = selectedProcess ? d.W_Process === selectedProcess : true;
+    const matchDoc = selectedDoc ?d.W_DocName === selectedDoc :true;
     const matchSearchTerm =
       d.W_Dep.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.W_Process.toLowerCase().includes(searchTerm.toLowerCase()) ||
