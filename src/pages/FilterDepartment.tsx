@@ -44,12 +44,21 @@ const App = () => {
     setPdfUrl(url);
   };
 
-  const custom_NumderID = ['WI', 'SM', 'SD', 'QP', 'QM'];
+  const custom_NumderID = ['WI', 'FM', 'SD', 'QP', 'QM'];
   const [selectedDep, setSelectedDep] = useState<string | null>(null);
   const [selectedProcess, setSelectedProcess] = useState<string | null>(null);
   const [selectedNumberID, setSelectedNumberID] = useState<string | null>(null);
 
-  const allDeps = Array.from(new Set(data.map((d) => d.W_Dep).filter(Boolean)));
+  // const allDeps = Array.from(new Set(data.map((d) => d.W_Dep).filter(Boolean)));
+  const allDeps = Array.from(
+    new Set(
+      data
+        .filter((d) => !selectedProcess || d.W_Process === selectedProcess) // ✅ กรองตาม selectedProcess
+        .map((d) => d.W_Dep)
+        .filter(Boolean)
+    )
+  );
+
   const allProcesses = Array.from(new Set(data.map((d) => d.W_Process).filter(Boolean)));
   // const allNumberID = Array.from(new Set(data.map((d) => d.W_NumberID).filter(Boolean)));
 
@@ -80,93 +89,82 @@ const App = () => {
 
 
       {/* Process Filter */}
-      <div className="w-full mb-6 mt-6">
+      <div className="w-full mb-4 mt-2">
         <h1 className="w-full lg:w-xl text-center lg:text-start text-3xl font-bold mb-6">🔍 ค้นหา เอกสารสำหรับกระบวนการทำงาน</h1>
         {/* <label htmlFor="process-select" className="block text-lg font-semibold mb-2 mt-8">
           Process:
         </label> */}
         <div className="flex flex-col gap-4">
-          <div className="flex gap-4 items-center">
-            <select
-              id="process-select"
-              value={selectedProcess || ""}
-              onChange={(e) =>
-                setSelectedProcess(e.target.value === "" ? null : e.target.value)
-              }
-              className="w-[25%] lg:w-[10%] px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="">-- All Processes --</option>
-              {allProcesses.map((proc) => (
-                <option key={proc} value={proc}>
-                  {proc}
-                </option>
-              ))}
-            </select>
-            {/* Clear Filters */}
-            {(selectedDep || selectedProcess || searchTerm) && (
-              <div className="flex w-full justify-start items-center">
-                <button
-                  onClick={() => {
-                    setSelectedDep(null);
-                    setSelectedProcess(null);
-                    setSearchTerm("");
-                  }}
-                  className="px-5 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-full"
-                >
-                  ❌ Clear Filters
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* <select
-            id="DocID-select"
-            value={selectedNumberID || ""}
-            onChange={(e) =>
-              setSelectedNumberID(e.target.value === "" ? null : e.target.value)
-            }
-            className="w-full xl:w-xl max-w-xl px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <option value="">-- All DOCUMENT ID --</option>
-            {custom_NumderID.map((NumID) => (
-              <option key={NumID} value={NumID}>
-                {NumID}
-              </option>
-            ))}
-          </select> */}
-          <div className="w-[60%] lg:w-[25%] rounded-full bg-blue-100 bg-blend-darken p-2 ">
-            <div className="grid grid-cols-5 gap-4 mx-auto">
-              {custom_NumderID.map((NumID) => {
-                const isSelected = selectedNumberID === NumID;
-
-                return (
-                  <button
-                    key={NumID}
-                    type="button"
-                    onClick={() =>
-                      setSelectedNumberID(isSelected ? null : NumID)
-                    }
-                    aria-pressed={isSelected}
-                    className={`w-full py-3 px-4 rounded-full border text-sm font-medium transition-all duration-200 ease-in-out
-          ${isSelected
-                        ? "bg-blue-700 text-white shadow-md ring-2 ring-blue-300"
-                        : "bg-white text-gray-800 hover:bg-gray-100 border-gray-300"
-                      }`}
-                  >
-                    {NumID}
-                  </button>
-                );
-              })}
+          <div className="flex w-full gap-4 items-center justify-center-safe">
+            <div className="w-[25%]"></div>
+            <div className="w-[50%] lg:w-[10%]">
+              <select
+                id="process-select"
+                value={selectedProcess || ""}
+                onChange={(e) =>
+                  setSelectedProcess(e.target.value === "" ? null : e.target.value)
+                }
+                className="w-full px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="">-- All Processes --</option>
+                {allProcesses.map((proc) => (
+                  <option key={proc} value={proc}>
+                    {proc}
+                  </option>
+                ))}
+              </select>
             </div>
-
+            <div className="w-[25%]"> {/* Clear Filters */}
+              {(selectedDep || selectedProcess || searchTerm) && (
+                <div className="flex w-full justify-center items-center">
+                  <button
+                    onClick={() => {
+                      setSelectedDep(null);
+                      setSelectedProcess(null);
+                      setSearchTerm("");
+                    }}
+                    className="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-full"
+                  >
+                    ❌ Clear Filters
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
         </div>
-
       </div>
 
+      {selectedProcess && (() => {
+        const filteredNumIDs = custom_NumderID.filter((numid) =>
+          data.some((d) => d.W_NumberID.includes(numid) && d.W_Process === selectedProcess)
+        );
+        return filteredNumIDs.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {filteredNumIDs.map((numid) => {
+              const isSelected = selectedNumberID === numid;
+
+              return (
+                <button
+                  key={numid}
+                  type="button"
+                  onClick={() => setSelectedNumberID(isSelected ? null : numid)}
+                  aria-pressed={isSelected}
+                  className={`w-full py-3 px-4 rounded-full border text-sm font-medium transition-all duration-200 ease-in-out
+              ${isSelected
+                      ? "bg-green-700 text-white shadow-md ring-2 ring-green-300"
+                      : "bg-white text-gray-800 hover:bg-gray-100 border-gray-300"
+                    }`}
+                >
+                  {numid}
+                </button>
+              );
+            })}
+          </div>
+        ) : null;
+      })()}
       {/* Search Bar */}
-      <div className="flex items-center justify-start w-full mb-6">
+      <div className="flex items-center justify-start w-full my-4">
         <div className="w-full lg:w-[40%]">
           <input
             type="text"
@@ -180,22 +178,22 @@ const App = () => {
 
       {/* Table */}
       <div className="overflow-x-auto w-full rounded-xl border border-gray-200 shadow-sm">
-        <table className="w-full border-collapse text-sm lg:text-xl text-left">
+        <table className="w-full border-collapse text-[14px] lg:text-xl text-left">
           <thead>
             <tr className="bg-gray-100">
               <th className="border border-gray-200 px-4 py-2">รหัสเอกสาร</th>
               <th className="border border-gray-200 px-4 py-2">ชื่อเอกสาร</th>
-              <th className="border border-gray-200 px-4 py-2">revision</th>
+              {/* <th className="border border-gray-200 px-4 py-2">revision</th> */}
               <th className="border border-gray-200 px-4 py-2">PDF File</th>
             </tr>
           </thead>
           <tbody>
             {filteredData.map((item) => (
               <tr key={item.id} className="hover:bg-gray-50">
-                <td className="border border-gray-200 px-4 py-2">{item.W_NumberID}</td>
+                <td className="w-[17%] lg:w-[10%] border border-gray-200 px-4 py-2">{item.W_NumberID}</td>
                 <td className="border border-gray-200 px-4 py-2">{item.W_DocName}</td>
-                <td className="border border-gray-200 px-4 py-2">{item.W_Revision}</td>
-                <td className="border border-gray-200 px-4 py-2">
+                {/* <td className="border border-gray-200 px-4 py-2">{item.W_Revision}</td> */}
+                <td className="text-center w-[17%] lg:w-[8%] border border-gray-200 px-4 py-2">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
