@@ -206,11 +206,9 @@ const main = () => {
                         </div>
                         <div
                             onClick={() => {
-                                handleShowPdf(""\\192.168.120.9\DataDocument\SD-FC-EN-04-02 ขั้นตอนการเปลี่ยนแปลงโปรแกรม AOI.pdf"");
+                                handleShowPdf("\\\\192.168.120.9\\DataDocument\\SD-FC-EN-04-02 ขั้นตอนการเปลี่ยนแปลงโปรแกรม AOI.pdf");
                                 setHomeStage("pdf");
-
                             }}
-
                             className="flex flex-col text-xl text-white justify-center items-center font-kanit w-1/2">
                             <GoCheckCircle className="size-30 " />
                             <div>
