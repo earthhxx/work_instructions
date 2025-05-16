@@ -40,7 +40,6 @@ const App = () => {
       } finally {
         setLoading(false);
         console.log(loading);
-
       }
     };
     fetchData();
@@ -66,7 +65,14 @@ const App = () => {
   //   )
   // );
 
-  const allProcesses = Array.from(new Set(data.map((d) => d.W_Process).filter(Boolean)));
+  const allProcesses = Array.from(
+    new Set(
+      data
+        .filter((d) => !selectedDepartment || d.W_Dep === selectedDepartment)
+        .map((d) => d.W_Process)
+        .filter(Boolean)
+    )
+  );
   // const allNumberID = Array.from(new Set(data.map((d) => d.W_NumberID).filter(Boolean)));
 
   const filteredData = data.filter((d) => {
