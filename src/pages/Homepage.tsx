@@ -52,10 +52,10 @@ const Homepage = () => {
     };
 
     const renderFilter = () => (
-        <div className="flex flex-col bg-white/[40%] backdrop-blur-lg rounded-2xl shadow-2xl p-6 gap-4 border border-blue-100 drop-shadow-lg transition-all">
-            <h1 className="text-3xl font-medium font-Funnel Display text-blue-800 text-center uppercase">Work 📄 Instruction</h1>
+        <div className="flex flex-col bg-white/[15%] backdrop-blur-lg rounded-2xl shadow-2xl p-4 sm:p-6 gap-4 border border-blue-100 drop-shadow-lg transition-all w-full max-w-lg">
+            <h1 className="text-xl sm:text-2xl font-extrabold font-Rethink text-blue-900 text-center uppercase">Work 📄 Instruction</h1>
 
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
                 {departments.map((dep) => {
                     const isSelected = selectedDepartment === dep;
                     return (
@@ -63,7 +63,7 @@ const Homepage = () => {
                             key={dep}
                             onClick={() => handleSelectDepartment(dep)}
                             aria-pressed={isSelected}
-                            className={` py-3 px-6 rounded-full border font-semibold text-base shadow-md transition-all duration-200
+                            className={`py-2 px-4 sm:py-3 sm:px-6 rounded-full border font-semibold text-sm sm:text-base shadow-md transition-all duration-200
                                 ${isSelected
                                     ? "bg-blue-700 text-white border-blue-700 scale-105 ring-4 ring-blue-200"
                                     : "bg-white text-blue-800 border-blue-300 hover:bg-blue-100 hover:border-blue-400"
@@ -78,15 +78,15 @@ const Homepage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-300 to-blue-900 flex flex-col items-center justify-center px-4 py-10 relative">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-300 to-blue-900 flex flex-col items-center justify-center px-2 sm:px-4 py-6 sm:py-10 relative">
             {/* Logo */}
-            <div className="absolute top-6 left-6">
-                <img src="/public/images/LOGO3.png" alt="Logo" className="h-[80px]" />
+            <div className="absolute top-2 left-2 sm:top-6 sm:left-6">
+                <img src="/public/images/LOGO3.png" alt="Logo" className="h-12 sm:h-[80px]" />
             </div>
 
             {/* Filter Section */}
             {data ? renderFilter() : (
-                <div className="text-blue-800 text-xl font-medium">Loading data...</div>
+                <div className="text-blue-800 text-lg sm:text-xl font-medium">Loading data...</div>
             )}
         </div>
     );
