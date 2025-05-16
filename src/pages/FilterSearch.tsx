@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import {Viewer, Worker } from "@react-pdf-viewer/core";
+import { Viewer, Worker } from "@react-pdf-viewer/core";
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
@@ -17,13 +17,17 @@ interface DocumentType {
   W_PDFs: string;
 }
 
+const LOCAL_STORAGE_KEY = "selectedDepartment";
+
 const App = () => {
   const [data, setData] = useState<DocumentType[]>([]);
   const [loading, setLoading] = useState(true);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
-
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(() => {
+    return localStorage.getItem(LOCAL_STORAGE_KEY) || null;
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +40,7 @@ const App = () => {
       } finally {
         setLoading(false);
         console.log(loading);
-        
+
       }
     };
     fetchData();
@@ -87,7 +91,6 @@ const App = () => {
         <div className="lg:absolute top-2 right-0 me-2 ">
           <img src="/public/images/LOGO.png" alt="Logo" className="h-15 lg:h-20 lg:w-[300px] xl:auto mt-4" />
         </div>
-
       </div>
 
 

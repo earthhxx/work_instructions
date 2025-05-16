@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { IoIosSearch } from "react-icons/io";
 import { CiFilter } from "react-icons/ci";
+import { HiHome } from "react-icons/hi";
 
 // 192.168.130.240
 
@@ -79,21 +80,33 @@ const MenuToggle = () => {
         <div className="fixed inset-0 flex flex-col w-screen h-screen justify-center items-center z-95 bg-black/20 backdrop-blur-sm">
             <div
                 ref={menuRef}
-                className="grid grid-cols-2 gap-4 size-fit rounded-2xl bg-gray-800/70 backdrop-blur-md shadow-md justify-center items-center drop-shadow-2xl p-4"
+                className="grid grid-cols-3 gap-4 size-fit rounded-2xl bg-gray-800/70 backdrop-blur-md shadow-md justify-center items-center drop-shadow-2xl p-4"
             >
                 
                 <div
                     onClick={() => {
-                        console.log("test onclick Page");
+                        console.log("test onclick Partlit");
                         setHomeStage('home'); //idk why tf setIsMenuOpen(false); not working
-                        navigate('/test');
+                        navigate('/PartList');
 
                     }}
                     className="flex flex-col justify-center items-center w-full h-full text-white">
 
                     <CiFilter className="size-25 text-white" />
-                    <div>DEPPARTMENT FILTER</div>
-                    <div className={`font-kanit font-light text-lg`}>ตัวกรอง แผนก</div>
+                    <div>PARTLIST</div>
+                    <div className={`font-kanit font-light text-lg`}>พาสลิส</div>
+                </div>
+                <div
+                    onClick={() => {
+                        console.log("test onclick home");
+                        setHomeStage('home'); //idk why tf setIsMenuOpen(false); not working
+                        navigate('/');
+                    }}
+                    className="flex flex-col justify-center items-center w-full h-full text-white">
+
+                    <HiHome className="size-25 text-white" />
+                    <div>HOME PAGE</div>
+                    <div className={`font-kanit font-light text-lg`}>หน้าหลัก</div>
                 </div>
                 <div
                     onClick={() => {
