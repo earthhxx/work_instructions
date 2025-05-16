@@ -52,8 +52,8 @@ const Homepage = () => {
     };
 
     const renderFilter = () => (
-        <div className="flex flex-col bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-6 gap-4 border border-blue-100 drop-shadow-lg transition-all">
-            <h1 className="text-3xl font-bold text-blue-800 text-center uppercase">Work 📄 Instruction</h1>
+        <div className="flex flex-col bg-white/[40%] backdrop-blur-lg rounded-2xl shadow-2xl p-6 gap-4 border border-blue-100 drop-shadow-lg transition-all">
+            <h1 className="text-3xl font-medium font-Funnel Display text-blue-800 text-center uppercase">Work 📄 Instruction</h1>
 
             <div className="flex flex-wrap justify-center gap-4">
                 {departments.map((dep) => {
@@ -78,7 +78,7 @@ const Homepage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-400 to-blue-900 flex flex-col items-center justify-center px-4 py-10 relative">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-300 to-blue-900 flex flex-col items-center justify-center px-4 py-10 relative">
             {/* Logo */}
             <div className="absolute top-6 left-6">
                 <img src="/public/images/LOGO3.png" alt="Logo" className="h-[80px]" />
