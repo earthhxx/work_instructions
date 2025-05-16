@@ -52,7 +52,7 @@ const Homepage = () => {
     };
 
     const renderFilter = () => (
-        <div className="flex flex-col bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-6 gap-4 border border-blue-100 drop-shadow-lg transition-all duration-300 hover:scale-[1.02]">
+        <div className="flex flex-col bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-6 gap-4 border border-blue-100 drop-shadow-lg transition-all">
             <h1 className="text-3xl font-bold text-blue-800 text-center uppercase">Work 📄 Instruction</h1>
 
             <div className="flex flex-wrap justify-center gap-4">
