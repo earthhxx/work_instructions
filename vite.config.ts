@@ -8,7 +8,7 @@ export default defineConfig({
     host: '0.0.0.0', // << ให้สามารถเข้าถึงผ่านเครือข่ายได้
     proxy: {
       '/api': {
-        target: 'http://localhost:5006', // Backend API
+        target: 'http://localhost:5009', // Backend API
         changeOrigin: true,
         secure: false,
       },
