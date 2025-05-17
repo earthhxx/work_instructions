@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const multer = require("multer");
 const sql = require("mssql");
@@ -5,72 +6,65 @@ const fs = require("fs").promises;
 const path = require("path");
 const cors = require("cors");
 
-// Network path (ต้องแน่ใจว่า server เข้าถึงได้)
-const networkPath = "\\\\192.168.120.9\\DataDocument";
-
 const app = express();
 app.use(cors());
+app.use(express.json()); // parse JSON bodies if needed
+
+const PORT = process.env.PORT || 5009;
+const networkPath = process.env.NETWORK_PATH;
+const uploadDir = path.join(__dirname, process.env.UPLOAD_DIR || "uploads");
 
 // Ensure upload directory exists
-const uploadDir = path.join(__dirname, "uploads");
 fs.mkdir(uploadDir, { recursive: true }).catch(console.error);
 
-// ตั้งค่า Multer สำหรับอัปโหลดไฟล์
+// Multer setup: accept only PDFs
 const upload = multer({
-  dest: "uploads/",
+  dest: uploadDir,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype !== "application/pdf") {
-      console.log("Rejected file:", file.originalname);
-      return cb(null, false);
-    }
-    cb(null, true);
+    cb(null, file.mimetype === "application/pdf");
   },
 });
 
-// การตั้งค่าฐานข้อมูล
-const dbConfig1 = {
-  user: "sa",
-  password: "B1mUmNU9",
-  server: "192.168.120.9",
-  database: "DASHBOARD",
-  options: {
-    encrypt: false,
-    trustServerCertificate: true,
+// Database configurations
+const dbConfigs = {
+  db1: {
+    user: process.env.DB1_USER,
+    password: process.env.DB1_PASSWORD,
+    server: process.env.DB1_SERVER,
+    database: process.env.DB1_DATABASE,
+    options: { encrypt: false, trustServerCertificate: true },
+  },
+  db2: {
+    user: process.env.DB2_USER,
+    password: process.env.DB2_PASSWORD,
+    server: process.env.DB2_SERVER,
+    database: process.env.DB2_DATABASE,
+    options: { encrypt: false, trustServerCertificate: true },
   },
 };
 
-const dbConfig2 = {
-  user: "sa",
-  password: "B1mUmNU9",
-  server: "192.168.120.2",
-  database: "NewFCXT(IM Thailand)",
-  options: {
-    encrypt: false,
-    trustServerCertificate: true,
-  },
-};
+// Create and return new connection pool for a given db name
+async function getDbPool(dbName) {
+  const config = dbConfigs[dbName];
+  if (!config) throw new Error(`Invalid database name: ${dbName}`);
 
-// ฟังก์ชันเลือก Database และปิดการเชื่อมต่อหลังใช้งาน
-async function getDatabaseConnection(dbName) {
-  const config = dbName === "db1" ? dbConfig1 : dbConfig2;
-  try {
-    await sql.connect(config);
-  } catch (error) {
-    throw new Error("เชื่อมต่อฐานข้อมูลล้มเหลว: " + error.message);
-  }
+  const pool = new sql.ConnectionPool(config);
+  await pool.connect();
+  return pool;
 }
 
-// 🟢 API สำหรับดึงข้อมูลพนักงานจากฐานข้อมูล
+// API: Get employee name by id (db2)
 app.get("/api/get-employee/:id", async (req, res) => {
+  const empId = req.params.id;
+  let pool;
   try {
-    const empId = req.params.id;
-    console.log("📥 Fetching employee ID:", empId);
-    await getDatabaseConnection("db2"); // ใช้ db2
-    console.log("✅ Connected to DB2");
+    pool = await getDbPool("db2");
+    const result = await pool
+      .request()
+      .input("empId", sql.NVarChar, empId)
+      .query("SELECT [Name] FROM [tb_Employee] WHERE [Label] = @empId");
 
-    const result = await sql.query`SELECT [Name] FROM [tb_Employee] WHERE [Label] = ${empId}`;
-
-    if (result.recordset.length > 0) {
+    if (result.recordset.length) {
       res.json({ name: result.recordset[0].Name });
     } else {
       res.status(404).json({ error: "ไม่พบข้อมูลพนักงาน" });
@@ -79,130 +73,170 @@ app.get("/api/get-employee/:id", async (req, res) => {
     console.error("Error fetching employee data:", error);
     res.status(500).json({ error: "เกิดข้อผิดพลาด: " + error.message });
   } finally {
-    await sql.close(); // ปิดการเชื่อมต่อ
+    pool?.close();
   }
 });
 
-
-// ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''API for Insert''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+// API: Insert record and save PDF file to network path
 app.post("/api/insert/:dbName", upload.single("file"), async (req, res) => {
-  let dbName = req.params.dbName;
-
+  const dbName = req.params.dbName;
   if (!["db1", "db2"].includes(dbName)) {
     return res.status(400).json({ error: "ชื่อฐานข้อมูลไม่ถูกต้อง (ต้องเป็น db1 หรือ db2)" });
   }
 
+  let pool;
   try {
-    console.log(`📌 Connecting to ${dbName}`);
-    await getDatabaseConnection(dbName);
-
     if (!req.file) {
       return res.status(400).json({ error: "กรุณาอัปโหลดไฟล์ PDF" });
     }
 
     const { text2, text3, text4, text5, text6, text7 } = req.body;
+    if (!text3 || !text4 || !text5) {
+      return res.status(400).json({ error: "กรุณากรอกข้อมูลที่จำเป็นให้ครบ" });
+    }
 
-    // สร้างชื่อไฟล์ใหม่ที่ปลอดภัย เช่น "DOC1234_R1.pdf"
+    // Compose safe filename
     const safeFileName = `${text3.trim()}-${text4.trim()} ${text5.trim()}.pdf`;
     const savePath = path.join(networkPath, safeFileName);
 
-    // คัดลอกไฟล์ที่อัปโหลดไปยัง network path
+    // Copy uploaded file to network path, then delete temp file
     await fs.copyFile(req.file.path, savePath);
-
-    // ลบไฟล์ temp หลังใช้งาน
     await fs.unlink(req.file.path);
 
-    const query = `
-      INSERT INTO WORKINSTRUCTION ([W_NumberID],[W_Revision],[W_DocName],[W_Dep],[W_Process],[W_PDFs],[W_name],[Datetime])
-      VALUES (@text3, @text4, @text5,@text6, @text7, @fileName, @text2, GETDATE())
-    `;
-
-    const request = new sql.Request();
+    pool = await getDbPool(dbName);
+    const request = pool.request();
     request.input("text3", sql.NVarChar(255), text3);
     request.input("text4", sql.NVarChar(255), text4);
     request.input("text5", sql.NVarChar(255), text5);
     request.input("text6", sql.NVarChar(255), text6);
     request.input("text7", sql.NVarChar(255), text7);
     request.input("text2", sql.NVarChar(255), text2);
-    const fullPath = `\\\\192.168.120.6\\02 Department\\10 Sharing Center\\05 IT\\Document\\${safeFileName}`;
+    // Use full UNC path for file
+    const fullPath = path.join(networkPath, safeFileName).replace(/\//g, "\\");
     request.input("fileName", sql.NVarChar(255), fullPath);
 
-    await request.query(query);
-    res.status(200).json({ message: `บันทึกข้อมูลและไฟล์สำเร็จ!` });
+    const query = `
+      INSERT INTO WORKINSTRUCTION 
+        ([W_NumberID], [W_Revision], [W_DocName], [W_Dep], [W_Process], [W_PDFs], [W_name], [Datetime])
+      VALUES 
+        (@text3, @text4, @text5, @text6, @text7, @fileName, @text2, GETDATE())
+    `;
 
+    await request.query(query);
+
+    res.status(200).json({ message: "บันทึกข้อมูลและไฟล์สำเร็จ!" });
   } catch (error) {
-    console.error("❌ Error while saving data:", error);
+    console.error("Error while saving data:", error);
     res.status(500).json({ error: "เกิดข้อผิดพลาด: " + error.message });
   } finally {
-    await sql.close();
+    pool?.close();
   }
 });
 
-
-// select list Process
-app.get('/api/Process', async (req, res) => {
+// Helper for generic SELECT queries on db1
+async function runQueryOnDb1(query, inputs = []) {
+  const pool = await getDbPool("db1");
   try {
-    await getDatabaseConnection("db1");
-    const result = await sql.query(
-      'SELECT distinct [W_Process] FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]'
-    );
-    // ส่งข้อมูลกลับ frontend
-    res.json(result.recordset);
-
-  } catch (err) {
-    console.error("❌ Error fetching data:", err);
-    res.status(500).send('Error fetching data');
+    const request = pool.request();
+    for (const { name, type, value } of inputs) {
+      request.input(name, type, value);
+    }
+    const result = await request.query(query);
+    return result.recordset;
   } finally {
-    await sql.close();
+    pool.close();
   }
-});
+}
 
-
-// Select show result document
-
-app.get('/api/ShowResult', async (req, res) => {
-  try {
-    await getDatabaseConnection("db1");
-
-    const result = await sql.query(`
-      WITH RankedDocs AS (
-    SELECT *,
-           ROW_NUMBER() OVER (PARTITION BY W_NumberID ORDER BY Datetime DESC) AS rn
+// API: Get all WORKINSTRUCTION entries ordered by datetime desc
+app.get("/api/Result", async (req, res) => {
+  const query = `
+    SELECT [id], [W_NumberID], [W_Revision], [W_DocName], [W_Dep], [W_Process], [W_PDFs], [W_name], [Datetime]
     FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]
-)
-SELECT [id],
-       [W_NumberID],
-       [W_Revision],
-       [W_DocName],
-       [W_Dep],
-       [W_Process],
-       [W_PDFs],
-       [W_name],
-       [Datetime]
-FROM RankedDocs
-WHERE rn = 1
-ORDER BY W_NumberID 
-    `);
-
-    // ส่งข้อมูลกลับ frontend
-    res.json(result.recordset);
-
-  } catch (err) {
-    console.error("❌ Error fetching data:", err);
-    res.status(500).send('Error fetching data');
-  } finally {
-    await sql.close();
+    ORDER BY [Datetime] DESC
+  `;
+  try {
+    const data = await runQueryOnDb1(query);
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching Result:", error);
+    res.status(500).send("Error fetching data");
   }
 });
 
+// API: Get distinct processes
+app.get("/api/Process", async (req, res) => {
+  const query = `SELECT DISTINCT [W_Process] FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]`;
+  try {
+    const data = await runQueryOnDb1(query);
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching Process:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
 
+// API: Get distinct departments
+app.get("/api/Department", async (req, res) => {
+  const query = `SELECT DISTINCT [W_Dep] FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]`;
+  try {
+    const data = await runQueryOnDb1(query);
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching Department:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
 
+// API: Get distinct processes by department
+app.get("/api/ProcessByDep/:dep", async (req, res) => {
+  const dep = req.params.dep;
+  const query = `
+    SELECT DISTINCT [W_Process]
+    FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]
+    WHERE [W_Dep] = @dep
+  `;
+  try {
+    const pool = await getDbPool("db1");
+    const result = await pool.request()
+      .input("dep", sql.NVarChar, dep)
+      .query(query);
 
-// ค้นหา file PDF
+    res.json(result.recordset);
+    pool.close();
+  } catch (error) {
+    console.error("Error fetching processes by department:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
+
+// API: Get latest revision per W_NumberID
+app.get("/api/ShowResult", async (req, res) => {
+  const query = `
+    WITH RankedDocs AS (
+      SELECT *,
+        ROW_NUMBER() OVER (PARTITION BY W_NumberID ORDER BY Datetime DESC) AS rn
+      FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]
+    )
+    SELECT [id], [W_NumberID], [W_Revision], [W_DocName], [W_Dep], [W_Process], [W_PDFs], [W_name], [Datetime]
+    FROM RankedDocs
+    WHERE rn = 1
+    ORDER BY W_NumberID
+  `;
+  try {
+    const data = await runQueryOnDb1(query);
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching ShowResult:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
+
+// API: Serve PDF file inline if path allowed
 app.get("/api/open-pdf", async (req, res) => {
   const filePath = req.query.path;
-
   const allowedRoot = "\\\\192.168.120.9\\DataDocument";
+
   if (!filePath || !filePath.startsWith(allowedRoot)) {
     return res.status(403).send("Access denied");
   }
@@ -218,10 +252,73 @@ app.get("/api/open-pdf", async (req, res) => {
   }
 });
 
+// API: Get latest revision for a given W_NumberID
+app.get("/api/get-revision/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    const pool = await getDbPool("db1");
+    const result = await pool.request()
+      .input("id", sql.NVarChar, id)
+      .query(`
+        SELECT TOP 1 W_Revision 
+        FROM [WORKINSTRUCTION] 
+        WHERE W_NumberID = @id 
+        ORDER BY W_Revision DESC
+      `);
 
+    if (result.recordset.length) {
+      res.json({ found: true, revision: result.recordset[0].W_Revision });
+    } else {
+      res.json({ found: false });
+    }
+    pool.close();
+  } catch (error) {
+    console.error("Error fetching revision:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
+// API: Delete a record by id
+app.delete("/api/delete/:id", async (req, res) => {
+  const id = req.params.id;
+  let pool;
 
-// Start Server
-app.listen(5006, () => {
-  console.log("Server is running on port 5006");
+  try {
+    pool = await getDbPool("db1");
+
+    // 1. หา path ของไฟล์ก่อน
+    const selectResult = await pool.request()
+      .input("id", sql.Int, id)
+      .query("SELECT [W_PDFs] FROM [DASHBOARD].[dbo].[WORKINSTRUCTION] WHERE [id] = @id");
+
+    if (selectResult.recordset.length === 0) {
+      return res.status(404).json({ error: "ไม่พบข้อมูลที่ต้องการลบ" });
+    }
+
+    const filePath = selectResult.recordset[0].W_PDFs;
+
+    // 2. ลบ record ออกจาก database
+    const deleteResult = await pool.request()
+      .input("id", sql.Int, id)
+      .query("DELETE FROM [DASHBOARD].[dbo].[WORKINSTRUCTION] WHERE [id] = @id");
+
+    // 3. ลบไฟล์ออกจากระบบไฟล์
+    try {
+      await fs.unlink(filePath);
+      console.log(`ลบไฟล์สำเร็จ: ${filePath}`);
+    } catch (fileErr) {
+      console.warn(`ไม่สามารถลบไฟล์ได้ หรือไฟล์ไม่มีอยู่: ${filePath}`, fileErr.message);
+    }
+
+    res.json({ message: "ลบข้อมูลและไฟล์สำเร็จ" });
+  } catch (error) {
+    console.error("Error deleting data:", error);
+    res.status(500).json({ error: "เกิดข้อผิดพลาดในการลบข้อมูล" });
+  } finally {
+    pool?.close();
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
 });

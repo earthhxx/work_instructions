@@ -42,7 +42,7 @@ const main = () => {
     useEffect(() => {
         const checkPdfAccess = async () => {
             try {
-                const testUrl = `http://192.168.130.240:5006/api/open-pdf?path=${encodeURIComponent("\\192.168.120.9\\DataDocument\\SD-PD-03-00 ขั้นตอนการจัดการเมื่อ AOI ตรวจพบ NG.pdf")}`;
+                const testUrl = `http://192.168.130.240:5009/api/open-pdf?path=${encodeURIComponent("\\192.168.120.9\\DataDocument\\SD-PD-03-00 ขั้นตอนการจัดการเมื่อ AOI ตรวจพบ NG.pdf")}`;
                 console.log("Checking PDF access with URL:", testUrl);
                 const response = await axios.head(testUrl);
                 if (response.status !== 200) {
@@ -78,7 +78,7 @@ const main = () => {
     }, []);
 
     const handleShowPdf = (PDFPATH: string) => {
-        const url = `http://192.168.130.240:5006/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
+        const url = `http://192.168.130.240:5009/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
         setPdfUrl(url);
     };
 

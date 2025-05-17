@@ -46,7 +46,7 @@ const App = () => {
   }, []);
 
   const handleShowPdf = (PDFPATH: string) => {
-    const url = `http://192.168.130.240:5006/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
+    const url = `http://192.168.130.240:5009/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
     setPdfUrl(url);
   };
 

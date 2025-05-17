@@ -52,9 +52,9 @@ const Homepage = () => {
     };
 
     const renderFilter = () => (
-        <div className="flex flex-col bg-white/[15%] backdrop-blur-lg rounded-2xl shadow-2xl p-4 sm:p-6 gap-4 border border-blue-100 drop-shadow-lg transition-all w-full max-w-lg">
-            <h1 className="text-xl sm:text-2xl font-extrabold font-Rethink text-blue-900 text-center uppercase">Work 📄 Instruction</h1>
-
+        <div className="flex flex-col bg-white/[90%] backdrop-blur-xl rounded-4xl shadow-2xl p-4 sm:p-6 gap-4 border border-blue-100 drop-shadow-2xl transition-all w-full max-w-lg">
+            <h1 className="text-xl sm:text-2xl font-bold font-kanit text-blue-900 text-center uppercase">ระบบค้นหา📄เอกสารกระบวนการทำงาน </h1>
+            <h1 className="text-xl sm:text-sm font-kanit text-blue-900 text-center uppercase">กรุณาเลือกแผนก :</h1>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
                 {departments.map((dep) => {
                     const isSelected = selectedDepartment === dep;
@@ -78,16 +78,75 @@ const Homepage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-300 to-blue-900 flex flex-col items-center justify-center px-2 sm:px-4 py-6 sm:py-10 relative">
+        
+        <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-700 to-blue-900 flex flex-col items-center justify-center px-2 sm:px-4 py-6 sm:py-10 relative overflow-hidden">
+            <div className="fixed inset-0 w-full h-full z-0">
+                <img
+                    src="/public/images/tai_img1.jpg"
+                    alt="Background"
+                    className="w-full h-full object-cover object-center"
+                />
+            </div>
+            {/* Particle Backdrop */}
+            <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 z-0"
+            >
+                {/* Rain Effect */}
+                <div
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        pointerEvents: "none",
+                        zIndex: 1,
+                        overflow: "hidden",
+                    }}
+                >
+                    <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, display: "block" }}>
+                        {Array.from({ length: 80 }).map((_, i) => {
+                            const x = Math.random() * 100;
+                            const delay = Math.random() * 2;
+                            const duration = 0.8 + Math.random() * 0.8;
+                            const opacity = 0.15 + Math.random() * 0.25;
+                            const length = 18 + Math.random() * 18;
+                            return (
+                                <rect
+                                    key={i}
+                                    x={`${x}%`}
+                                    y="-30"
+                                    width="2"
+                                    height={length}
+                                    fill="#fff"
+                                    fillOpacity={opacity}
+                                >
+                                    <animate
+                                        attributeName="y"
+                                        from="-30"
+                                        to="110%"
+                                        dur={`${duration}s`}
+                                        begin={`${delay}s`}
+                                        repeatCount="indefinite"
+                                    />
+                                </rect>
+                            );
+                        })}
+                    </svg>
+                </div>
+            </div>
+
             {/* Logo */}
-            <div className="absolute top-2 left-2 sm:top-6 sm:left-6">
+            <div className="absolute top-2 left-2 sm:top-6 sm:left-6 z-10">
                 <img src="/public/images/LOGO3.png" alt="Logo" className="h-12 sm:h-[80px]" />
             </div>
 
             {/* Filter Section */}
-            {data ? renderFilter() : (
-                <div className="text-blue-800 text-lg sm:text-xl font-medium">Loading data...</div>
-            )}
+            <div className="z-10 w-full flex justify-center">
+                {data ? renderFilter() : (
+                    <div className="text-blue-800 text-lg sm:text-xl font-medium">Loading data...</div>
+                )}
+            </div>
         </div>
     );
 };
