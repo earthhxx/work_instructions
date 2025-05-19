@@ -73,7 +73,6 @@ const Homepage = () => {
             setSelectedDepartment(null);
         } else {
             setSelectedDepartment(dep);
-            navigate("/FilterSearch");
         }
     };
     const handleSelectProcess = (proc: string) => {
@@ -81,9 +80,10 @@ const Homepage = () => {
             setSelectedProcess(null);
         } else {
             setSelectedProcess(proc);
-            // ถ้าต้องการ navigate ต่อ ก็ใส่ตรงนี้
+            navigate("/FilterSearch"); // เปลี่ยนหน้าเมื่อเลือก process
         }
     };
+
 
 
     const renderFilter = () => (
