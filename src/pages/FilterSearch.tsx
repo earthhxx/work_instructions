@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 import '@react-pdf-viewer/core/lib/styles/index.css';
@@ -18,7 +18,6 @@ interface DocumentType {
 
 const LOCAL_STORAGE_KEY = "selectedDepartment";
 const LOCAL_STORAGE_KEY2 = "selectedProcess";
-
 const CUSTOM_NUMBER_IDS = ['WI', 'FM', 'SD', 'QP', 'QM'];
 
 const App = () => {
@@ -26,80 +25,51 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(() => localStorage.getItem(LOCAL_STORAGE_KEY) || null);
-  const [selectedProcess, setSelectedProcess] = useState<string | null>(() => localStorage.getItem(LOCAL_STORAGE_KEY2) || null);
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
+    () => localStorage.getItem(LOCAL_STORAGE_KEY) || null
+  );
+  const [selectedProcess, setSelectedProcess] = useState<string | null>(
+    () => localStorage.getItem(LOCAL_STORAGE_KEY2) || null
+  );
   const [selectedNumberID, setSelectedNumberID] = useState<string | null>(null);
-  const [count, setCount] = useState(0);
 
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Fetch data function
-  const fetchData = async () => {
+  // Fetch ด้วย optional query param
+  const fetchData = async (processFilter?: string) => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/ShowResult");
+      const url = processFilter
+        ? `/api/ShowResult?process=${encodeURIComponent(processFilter)}`
+        : "/api/ShowResult";
+      const res = await axios.get(url);
       setData(res.data);
     } catch (err) {
       console.error("❌ Error fetching data:", err);
     } finally {
       setLoading(false);
-
     }
   };
 
-  // Initialize data on mount
+  // เรียกครั้งแรกตอน mount
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Interval: increase count every 1 second
+  // sync localStorage
   useEffect(() => {
-    startInterval();
-  }, []);
-
-  // When count >= 5, fetch new data, reset count, and pause counting for 5 seconds
-  useEffect(() => {
-    if (count >= 5) {
-      fetchData();
-      resetCountingWithPause();
+    if (selectedDepartment) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, selectedDepartment);
     }
-  }, [count]);
-
-  // Sync localStorage when selectedDepartment or selectedProcess changes
-  useEffect(() => {
-    if (selectedDepartment) localStorage.setItem(LOCAL_STORAGE_KEY, selectedDepartment);
   }, [selectedDepartment]);
-
   useEffect(() => {
-    if (selectedProcess) localStorage.setItem(LOCAL_STORAGE_KEY2, selectedProcess);
+    if (selectedProcess) {
+      localStorage.setItem(LOCAL_STORAGE_KEY2, selectedProcess);
+    } else {
+      localStorage.removeItem(LOCAL_STORAGE_KEY2);
+    }
   }, [selectedProcess]);
 
-  // Start the interval timer
-  const startInterval = () => {
-    if (intervalRef.current) return; // Already running
-    intervalRef.current = setInterval(() => {
-      setCount(c => c + 1);
-    }, 1000);
-  };
-
-  // Clear interval and timeout, then restart interval after 5s pause
-  const resetCountingWithPause = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    setCount(0);
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-    timeoutRef.current = setTimeout(() => {
-      startInterval();
-      timeoutRef.current = null;
-      console.log('timeout start fetch')
-    }, 5000);
-  };
 
 
   // Filter unique processes for dropdown
@@ -132,7 +102,7 @@ const App = () => {
 
 
   return (
-    <div onClick={resetCountingWithPause} className="min-h-screen bg-white text-gray-900 flex flex-col items-center px-4">
+    <div className="min-h-screen bg-white text-gray-900 flex flex-col items-center px-4">
       <div className="rerative ">
         <div className="lg:absolute top-2 right-0 me-2 ">
           <img src="/public/images/LOGO.png" alt="Logo" className="h-15 lg:h-20 lg:w-[300px] xl:auto mt-4" />
@@ -153,10 +123,15 @@ const App = () => {
             <div className="w-[25%] lg:w-0"></div>
             <div className="w-[50%] lg:w-[30%]">
               <select
+                onFocus={() => {
+                  // เรียก fetchData ทันทีที่ dropdown ถูกโฟกัส
+                  fetchData();
+                }}
                 id="process-select"
                 value={selectedProcess || ""}
-                onChange={(e) =>
-                  setSelectedProcess(e.target.value === "" ? null : e.target.value)
+                onChange={(e) => {
+                  setSelectedProcess(e.target.value === "" ? null : e.target.value);
+                }
                 }
                 className="w-full px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               >
