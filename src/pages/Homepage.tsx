@@ -18,12 +18,8 @@ const LOCAL_STORAGE_KEY2 = "selectedProcess";
 
 const Homepage = () => {
     const navigate = useNavigate();
-    const [selectedDepartment, setSelectedDepartment] = useState<string | null>(() => {
-        return localStorage.getItem(LOCAL_STORAGE_KEY) || null;
-    });
-    const [selectedProcess, setSelectedProcess] = useState<string | null>(() => {
-        return localStorage.getItem(LOCAL_STORAGE_KEY2) || null;
-    });
+    const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
+    const [selectedProcess, setSelectedProcess] = useState<string | null>(null);
     const [data, setData] = useState<DocumentType[] | null>(null);
 
     useEffect(() => {
@@ -47,7 +43,6 @@ const Homepage = () => {
         if (selectedProcess) {
             localStorage.setItem(LOCAL_STORAGE_KEY2, selectedProcess);
         } else {
-            localStorage.removeItem(LOCAL_STORAGE_KEY2);
         }
     }, [selectedProcess]);
 
@@ -69,29 +64,40 @@ const Homepage = () => {
 
 
     const handleSelectDepartment = (dep: string) => {
-        if (selectedDepartment === dep) {
-            setSelectedDepartment(null);
-        } else {
             setSelectedDepartment(dep);
-        }
     };
     const handleSelectProcess = (proc: string) => {
-        if (selectedProcess === proc) {
-            setSelectedProcess(null);
-        } else {
             setSelectedProcess(proc);
             navigate("/FilterSearch"); // เปลี่ยนหน้าเมื่อเลือก process
-        }
     };
 
 
 
     const renderFilter = () => (
-        <div className="flex flex-col bg-white/25 backdrop-blur-lg rounded-3xl shadow-2xl p-6 gap-6 w-full max-w-lg items-center ring-1 ring-white/40 hover:scale-[1.015] transition-transform duration-300">
+        <div className="flex flex-col bg-white/25 backdrop-blur-lg rounded-3xl shadow-2xl p-6 gap-6 w-full items-center ring-1 ring-white/40 hover:scale-[1.015] transition-transform duration-300">
             {/* ... (โลโก้ + ชื่อเรื่อง + ปุ่มแผนก) */}
+            {/* LOGO */}
+            <div className="bg-white/80 rounded-full shadow-md">
+                <img
+                    src="/public/images/LOGO3.png"
+                    alt="Logo"
+                    style={{
+                        padding: '1rem',
+                        height: '60px',
+                        width: '60px',
+                        objectFit: 'contain',
+                        boxSizing: 'content-box',
+                    }}
+                />
+            </div>
+
+            {/* TITLE */}
+            <h1 className="text-2xl sm:text-3xl font-bold font-kanit text-blue-900 text-center uppercase">
+                ระบบค้นหา เอกสารกระบวนการทำงาน
+            </h1>
 
             {/* ปุ่มแผนก */}
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-5">
+            <div className="flex justify-center ms-3 me-3 gap-3 sm:gap-5">
                 {departments.map((dep) => {
                     const isSelected = selectedDepartment === dep;
                     return (
@@ -116,7 +122,7 @@ const Homepage = () => {
                     <h3 className="text-lg font-kanit text-blue-900 uppercase">
                         เลือกกระบวนการ :
                     </h3>
-                    <div className="flex flex-wrap justify-center gap-3 sm:gap-5">
+                    <div className="grid grid-cols-3 lg:grid-cols-4 justify-center gap-3 sm:gap-5">
                         {allProcesses.map((proc) => {
                             const isProcSelected = selectedProcess === proc;
                             return (
@@ -250,9 +256,10 @@ const Homepage = () => {
             </div>
 
             {/* FOREGROUND */}
-            <div className="relative z-10 w-full max-w-lg">
+            <div className="flex justify-center z-10 ml-6 mr-6 pe-6 ps-6 w-fit">
                 {data ? renderFilter() : <p className="text-white text-xl">Loading...</p>}
             </div>
+
         </div>
     );
 
