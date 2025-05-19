@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
-
 
 interface DocumentType {
   id: number;
@@ -18,89 +17,122 @@ interface DocumentType {
 }
 
 const LOCAL_STORAGE_KEY = "selectedDepartment";
-const LOCAL_STORAGE_KEY2 = "selectedProcess"
+const LOCAL_STORAGE_KEY2 = "selectedProcess";
+
+const CUSTOM_NUMBER_IDS = ['WI', 'FM', 'SD', 'QP', 'QM'];
 
 const App = () => {
   const [data, setData] = useState<DocumentType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(() => localStorage.getItem(LOCAL_STORAGE_KEY) || null);
+  const [selectedProcess, setSelectedProcess] = useState<string | null>(() => localStorage.getItem(LOCAL_STORAGE_KEY2) || null);
+  const [selectedNumberID, setSelectedNumberID] = useState<string | null>(null);
+  const [count, setCount] = useState(0);
+
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
-  // ...states เดิม
-  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
-    () => localStorage.getItem(LOCAL_STORAGE_KEY) || null
-  );
-  const [selectedProcess, setSelectedProcess] = useState<string | null>(
-    () => localStorage.getItem(LOCAL_STORAGE_KEY2) || null
-  );
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // sync localStorage for department & process
+  // Fetch data function
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get("/api/ShowResult");
+      setData(res.data);
+    } catch (err) {
+      console.error("❌ Error fetching data:", err);
+    } finally {
+      setLoading(false);
+
+    }
+  };
+
+  // Initialize data on mount
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Interval: increase count every 1 second
+  useEffect(() => {
+    startInterval();
+  }, []);
+
+  // When count >= 5, fetch new data, reset count, and pause counting for 5 seconds
+  useEffect(() => {
+    if (count >= 5) {
+      fetchData();
+      resetCountingWithPause();
+    }
+  }, [count]);
+
+  // Sync localStorage when selectedDepartment or selectedProcess changes
   useEffect(() => {
     if (selectedDepartment) localStorage.setItem(LOCAL_STORAGE_KEY, selectedDepartment);
   }, [selectedDepartment]);
 
   useEffect(() => {
     if (selectedProcess) localStorage.setItem(LOCAL_STORAGE_KEY2, selectedProcess);
-    console.log('use',selectedProcess);
   }, [selectedProcess]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get("/api/ShowResult");
-        console.log(res);
-        setData(res.data);
-      } catch (err) {
-        console.error("❌ Error fetching data:", err);
-      } finally {
-        setLoading(false);
-        console.log(loading);
-      }
-    };
-    fetchData();
-  }, []);
+  // Start the interval timer
+  const startInterval = () => {
+    if (intervalRef.current) return; // Already running
+    intervalRef.current = setInterval(() => {
+      setCount(c => c + 1);
+    }, 1000);
+  };
 
+  // Clear interval and timeout, then restart interval after 5s pause
+  const resetCountingWithPause = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setCount(0);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    timeoutRef.current = setTimeout(() => {
+      startInterval();
+      timeoutRef.current = null;
+      console.log('timeout start fetch')
+    }, 5000);
+  };
+
+
+  // Filter unique processes for dropdown
+  const allProcesses = useMemo(() => {
+    return Array.from(new Set(data.filter(d => !selectedDepartment || d.W_Dep === selectedDepartment).map(d => d.W_Process).filter(Boolean)));
+  }, [data, selectedDepartment]);
+
+  // Filter data by selected filters and search term
+  const filteredData = useMemo(() => {
+    return data.filter(d => {
+      const matchesDepartment = selectedDepartment ? d.W_Dep === selectedDepartment : true;
+      const matchesProcess = selectedProcess ? d.W_Process === selectedProcess : true;
+      const matchesNumberID = selectedNumberID ? d.W_NumberID.includes(selectedNumberID) : true;
+      const matchesSearchTerm =
+        d.W_Dep.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        d.W_Process.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        d.W_NumberID.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        d.W_DocName.toLowerCase().includes(searchTerm.toLowerCase());
+
+      return matchesDepartment && matchesProcess && matchesNumberID && matchesSearchTerm;
+    });
+  }, [data, selectedDepartment, selectedProcess, selectedNumberID, searchTerm]);
+
+  // Show PDF in viewer
   const handleShowPdf = (PDFPATH: string) => {
     const url = `http://192.168.130.240:5009/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
     setPdfUrl(url);
   };
 
-  const custom_NumderID = ['WI', 'FM', 'SD', 'QP', 'QM'];
-  const [selectedNumberID, setSelectedNumberID] = useState<string | null>(null);
-
-
-  const allProcesses = Array.from(
-    new Set(
-      data
-        .filter((d) => !selectedDepartment || d.W_Dep === selectedDepartment)
-        .map((d) => d.W_Process)
-        .filter(Boolean)
-    )
-  );
-  // const allNumberID = Array.from(new Set(data.map((d) => d.W_NumberID).filter(Boolean)));
-
-
-  // filteredData ถ้าต้องกรอง process ด้วย ก็เอา selectedProcess มารวม
-  const filteredData = useMemo(() => {
-    return data.filter((d) => {
-      const matchDep = selectedDepartment ? d.W_Dep === selectedDepartment : true;
-      const matchProc = selectedProcess ? d.W_Process === selectedProcess : true;
-      // ...เงื่อนไขอื่น ๆ
-      const matchNumberID = selectedNumberID ? d.W_NumberID.includes(selectedNumberID) : true;
-      const matchSearchTerm =
-        d.W_Dep.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        d.W_Process.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        d.W_NumberID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        d.W_DocName.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchDep && matchProc && matchSearchTerm && matchNumberID;
-    });
-  }, [data, selectedDepartment, selectedProcess, searchTerm, selectedNumberID]);
-
 
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 flex flex-col items-center px-4">
+    <div onClick={resetCountingWithPause} className="min-h-screen bg-white text-gray-900 flex flex-col items-center px-4">
       <div className="rerative ">
         <div className="lg:absolute top-2 right-0 me-2 ">
           <img src="/public/images/LOGO.png" alt="Logo" className="h-15 lg:h-20 lg:w-[300px] xl:auto mt-4" />
@@ -114,8 +146,8 @@ const App = () => {
           <h1 className="w-full lg:w-xl text-center text-3xl font-bold mb-6">🔍 ค้นหา เอกสารสำหรับกระบวนการทำงาน</h1>
         </div>
         {/* <label htmlFor="process-select" className="block text-lg font-semibold mb-2 mt-8">
-          Process:
-        </label> */}
+            Process:
+          </label> */}
         <div className="flex flex-col gap-4">
           <div className="flex w-full gap-4 items-center justify-center-safe lg:justify-start">
             <div className="w-[25%] lg:w-0"></div>
@@ -128,7 +160,7 @@ const App = () => {
                 }
                 className="w-full px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               >
-                <option value={selectedProcess || ""}>{selectedProcess}</option>
+                <option value={""}>{selectedProcess || '--ALL PROCESS--'}</option>
                 {allProcesses.map((proc) => (
                   <option key={proc} value={proc}>
                     {proc}
@@ -156,7 +188,7 @@ const App = () => {
         </div>
       </div>
       {selectedProcess && (() => {
-        const filteredNumIDs = custom_NumderID.filter((numid) =>
+        const filteredNumIDs = CUSTOM_NUMBER_IDS.filter((numid) =>
           data.some((d) => d.W_NumberID.includes(numid) && d.W_Process === selectedProcess)
         );
         return filteredNumIDs.length > 0 ? (
@@ -171,7 +203,7 @@ const App = () => {
                   onClick={() => setSelectedNumberID(isSelected ? null : numid)}
                   aria-pressed={isSelected}
                   className={`w-[8%] lg:w-[5%] py-3 px-4 rounded-2xl border text-sm text-center font-medium transition-all duration-200 ease-in-out
-              ${isSelected
+                ${isSelected
                       ? "bg-blue-900 text-white shadow-md ring-2 ring-blue-300"
                       : "bg-white text-gray-800 hover:bg-gray-100 border-gray-300"
                     }`}
