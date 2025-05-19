@@ -12,16 +12,16 @@ interface DocumentType {
     W_name: string;
     W_PDFs: string;
 }
-const NUM_PARTICLES = 80;
+
 const LOCAL_STORAGE_KEY = "selectedDepartment";
 const LOCAL_STORAGE_KEY2 = "selectedProcess";
 
 const Homepage = () => {
     const navigate = useNavigate();
-    const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
-    const [selectedProcess, setSelectedProcess] = useState<string | null>(null);
     const [data, setData] = useState<DocumentType[] | null>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
 
+    // Fetch data
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -34,60 +34,43 @@ const Homepage = () => {
         fetchData();
     }, []);
 
-    useEffect(() => {
-        if (selectedDepartment) {
-            localStorage.setItem(LOCAL_STORAGE_KEY, selectedDepartment);
-        }
-    }, [selectedDepartment]);
-    useEffect(() => {
-        if (selectedProcess) {
-            localStorage.setItem(LOCAL_STORAGE_KEY2, selectedProcess);
-        } else {
-        }
-    }, [selectedProcess]);
-
+    // Compute unique departments
     const departments = Array.from(
         new Set(data?.map((item) => item.W_Dep) ?? [])
     );
 
-    const allProcesses = Array.from(
-        new Set(
-            (data
-                ?.filter((d: { W_Dep: string }) =>
-                    !selectedDepartment || d.W_Dep === selectedDepartment
-                )
-                .map((d: { W_Process: any }) => d.W_Process)
-                .filter(Boolean)) ??
-            []
-        )
-    );
+    // Group processes by department
+    interface DeptGroup {
+        department: string;
+        processes: string[];
+    }
+    const groups: DeptGroup[] = departments.map((dep) => ({
+        department: dep,
+        processes: Array.from(
+            new Set(
+                data!
+                    .filter((d) => d.W_Dep === dep)
+                    
+                    .map((d) => d.W_Process)
+                    .filter(Boolean)
+            )
+        ),
+    }));
 
-
-    const handleSelectDepartment = (dep: string) => {
-            setSelectedDepartment(dep);
+    const handleClick = (dep: string, proc: string) => {
+        localStorage.setItem(LOCAL_STORAGE_KEY, dep);
+        localStorage.setItem(LOCAL_STORAGE_KEY2, proc);
+        navigate("/FilterSearch");
     };
-    const handleSelectProcess = (proc: string) => {
-            setSelectedProcess(proc);
-            navigate("/FilterSearch"); // เปลี่ยนหน้าเมื่อเลือก process
-    };
-
-
 
     const renderFilter = () => (
         <div className="flex flex-col bg-white/25 backdrop-blur-lg rounded-3xl shadow-2xl p-6 gap-6 w-full items-center ring-1 ring-white/40 hover:scale-[1.015] transition-transform duration-300">
-            {/* ... (โลโก้ + ชื่อเรื่อง + ปุ่มแผนก) */}
             {/* LOGO */}
             <div className="bg-white/80 rounded-full shadow-md">
                 <img
                     src="/public/images/LOGO3.png"
                     alt="Logo"
-                    style={{
-                        padding: '1rem',
-                        height: '60px',
-                        width: '60px',
-                        objectFit: 'contain',
-                        boxSizing: 'content-box',
-                    }}
+                    className="p-4 h-25 w-25 object-contain"
                 />
             </div>
 
@@ -96,69 +79,40 @@ const Homepage = () => {
                 ระบบค้นหา เอกสารกระบวนการทำงาน
             </h1>
 
-            {/* ปุ่มแผนก */}
-            <div className="flex justify-center ms-3 me-3 gap-3 sm:gap-5">
-                {departments.map((dep) => {
-                    const isSelected = selectedDepartment === dep;
-                    return (
-                        <button
-                            key={dep}
-                            onClick={() => handleSelectDepartment(dep)}
-                            aria-pressed={isSelected}
-                            className={`py-2 px-6 rounded-full border font-semibold text-base shadow-md transition duration-200 ${isSelected
-                                ? "bg-blue-700 text-white border-blue-700 scale-105 ring-4 ring-blue-300"
-                                : "bg-white/80 text-blue-800 border-blue-300 hover:bg-white hover:text-blue-900"
-                                }`}
-                        >
-                            {dep}
-                        </button>
-                    );
-                })}
-            </div>
+            {/* Departments & Processes */}
+            <div className="w-full">
+                {groups.map(({ department, processes }) => (
+                    <div key={department} className="mb-8">
+                        {/* Department Header */}
+                        <h2 className="text-2xl font-bold font-kanit text-blue-900 uppercase mb-3">
+                            {department}
+                        </h2>
 
-            {/* ปุ่ม Process: แสดงเฉพาะเมื่อเลือก Department แล้ว */}
-            {selectedDepartment && (
-                <>
-                    <h3 className="text-lg font-kanit text-blue-900 uppercase">
-                        เลือกกระบวนการ :
-                    </h3>
-                    <div className="grid grid-cols-3 lg:grid-cols-4 justify-center gap-3 sm:gap-5">
-                        {allProcesses.map((proc) => {
-                            const isProcSelected = selectedProcess === proc;
-                            return (
+                        {/* Process Buttons */}
+                        <div className="flex flex-wrap gap-3 sm:gap-5">
+                            {processes.map((proc) => (
                                 <button
                                     key={proc}
-                                    onClick={() => handleSelectProcess(proc)}
-                                    aria-pressed={isProcSelected}
-                                    className={`py-2 px-6 rounded-full border font-semibold text-base shadow-md transition duration-200 ${isProcSelected
-                                        ? "bg-green-600 text-white border-green-600 scale-105 ring-4 ring-green-300"
-                                        : "bg-white/80 text-green-800 border-green-300 hover:bg-white hover:text-green-900"
-                                        }`}
+                                    onClick={() => handleClick(department, proc)}
+                                    className="py-2 px-6 rounded-full border font-semibold text-base shadow-md transition duration-200 bg-white/80 text-green-800 border-green-300 hover:bg-white hover:text-green-900"
                                 >
                                     {proc}
                                 </button>
-                            );
-                        })}
+                            ))}
+                        </div>
                     </div>
-                </>
-            )}
+                ))}
+            </div>
         </div>
     );
 
-
-
-
-
-
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+    // Particle background
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-
         const ctx = canvas.getContext("2d");
         let animationFrameId: number;
-
-        const particles = Array.from({ length: NUM_PARTICLES }, () => ({
+        const particles = Array.from({ length: 80 }, () => ({
             x: Math.random() * window.innerWidth,
             y: Math.random() * window.innerHeight,
             radius: 1 + Math.random() * 2,
@@ -166,59 +120,41 @@ const Homepage = () => {
             dy: -0.5 + Math.random(),
             alpha: 0.2 + Math.random() * 0.3
         }));
-
         const resize = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         };
-
-        const draw = () => {
+        const drawParticles = () => {
             if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
+            particles.forEach((p) => {
                 p.x += p.dx;
                 p.y += p.dy;
-
-                // warp around edges
                 if (p.x < 0) p.x = canvas.width;
                 if (p.x > canvas.width) p.x = 0;
                 if (p.y < 0) p.y = canvas.height;
                 if (p.y > canvas.height) p.y = 0;
-
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
                 ctx.fill();
             });
-
-            animationFrameId = requestAnimationFrame(draw);
+            animationFrameId = requestAnimationFrame(drawParticles);
         };
-
         resize();
         window.addEventListener("resize", resize);
-        draw();
-
+        drawParticles();
         return () => {
             window.removeEventListener("resize", resize);
             cancelAnimationFrame(animationFrameId);
         };
     }, []);
 
-
     return (
         <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-10 bg-gradient-to-t from-blue-800/90 via-sky-400 to-blue-800/10">
-            {/* BACKGROUND DECORATION */}
             <div className="absolute inset-0 pointer-events-none z-0">
-                {/* GRADIENT OVERLAY WITH BLUR */}
                 <div className="absolute inset-0 bg-gradient-radial from-white/10 via-white/5 to-transparent blur-3xl opacity-30" />
-
-                {/* RAIN EFFECT */}
-                <svg
-                    width="100%"
-                    height="100%"
-                    className="absolute inset-0"
-                    style={{ zIndex: 1 }}
-                >
+                <svg width="100%" height="100%" className="absolute inset-0" style={{ zIndex: 1 }}>
                     {Array.from({ length: 60 }).map((_, i) => {
                         const x = Math.random() * 100;
                         const delay = Math.random() * 5;
@@ -226,7 +162,6 @@ const Homepage = () => {
                         const radius = 6 + Math.random() * 12;
                         const opacity = 0.2 + Math.random() * 0.4;
                         const blur = 2 + Math.random() * 4;
-
                         return (
                             <circle
                                 key={i}
@@ -235,9 +170,7 @@ const Homepage = () => {
                                 r={radius}
                                 fill="white"
                                 fillOpacity={opacity}
-                                style={{
-                                    filter: `blur(${blur}px)`,
-                                }}
+                                style={{ filter: `blur(${blur}px)` }}
                             >
                                 <animate
                                     attributeName="cy"
@@ -251,18 +184,14 @@ const Homepage = () => {
                         );
                     })}
                 </svg>
-
-
             </div>
 
-            {/* FOREGROUND */}
-            <div className="flex justify-center z-10 ml-6 mr-6 pe-6 ps-6 w-fit">
+            <div className="flex justify-center z-10 w-full max-w-4xl">
                 {data ? renderFilter() : <p className="text-white text-xl">Loading...</p>}
             </div>
-
+            <canvas ref={canvasRef} className="absolute inset-0" />
         </div>
     );
-
 };
 
 export default Homepage;
