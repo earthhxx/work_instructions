@@ -94,7 +94,7 @@ const MenuToggle = () => {
 
                     <CiFilter className="size-25 text-white" />
                     <div>PARTLIST</div>
-                    <div className={`font-kanit font-light text-lg`}>พาสลิส</div>
+                    <div className={`font-kanit font-light text-lg`}>พาร์ทลิสต์</div>
                 </div>
                 <div
                     onClick={() => {

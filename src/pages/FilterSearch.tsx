@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 import '@react-pdf-viewer/core/lib/styles/index.css';
@@ -18,6 +18,7 @@ interface DocumentType {
 }
 
 const LOCAL_STORAGE_KEY = "selectedDepartment";
+const LOCAL_STORAGE_KEY2 = "selectedProcess"
 
 const App = () => {
   const [data, setData] = useState<DocumentType[]>([]);
@@ -25,9 +26,24 @@ const App = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
-  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(() => {
-    return localStorage.getItem(LOCAL_STORAGE_KEY) || null;
-  });
+
+  // ...states เดิม
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
+    () => localStorage.getItem(LOCAL_STORAGE_KEY) || null
+  );
+  const [selectedProcess, setSelectedProcess] = useState<string | null>(
+    () => localStorage.getItem(LOCAL_STORAGE_KEY2) || null
+  );
+
+  // sync localStorage for department & process
+  useEffect(() => {
+    if (selectedDepartment) localStorage.setItem(LOCAL_STORAGE_KEY, selectedDepartment);
+  }, [selectedDepartment]);
+
+  useEffect(() => {
+    if (selectedProcess) localStorage.setItem(LOCAL_STORAGE_KEY2, selectedProcess);
+    console.log('use',selectedProcess);
+  }, [selectedProcess]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,19 +67,8 @@ const App = () => {
   };
 
   const custom_NumderID = ['WI', 'FM', 'SD', 'QP', 'QM'];
-  const [selectedDep, setSelectedDep] = useState<string | null>(null);
-  const [selectedProcess, setSelectedProcess] = useState<string | null>(null);
   const [selectedNumberID, setSelectedNumberID] = useState<string | null>(null);
 
-  // const allDeps = Array.from(new Set(data.map((d) => d.W_Dep).filter(Boolean)));
-  // const allDeps = Array.from(
-  //   new Set(
-  //     data
-  //       .filter((d) => !selectedProcess || d.W_Process === selectedProcess) // ✅ กรองตาม selectedProcess
-  //       .map((d) => d.W_Dep)
-  //       .filter(Boolean)
-  //   )
-  // );
 
   const allProcesses = Array.from(
     new Set(
@@ -75,19 +80,22 @@ const App = () => {
   );
   // const allNumberID = Array.from(new Set(data.map((d) => d.W_NumberID).filter(Boolean)));
 
-  const filteredData = data.filter((d) => {
-    const matchDep = selectedDep ? d.W_Dep === selectedDep : true;
-    const matchProc = selectedProcess ? d.W_Process === selectedProcess : true;
-    // const matchNumberID = selectedNumberID ? d.W_NumberID === selectedNumberID : true;
-    const matchNumberID = selectedNumberID ? d.W_NumberID.includes(selectedNumberID) : true;
-    const matchSearchTerm =
-      d.W_Dep.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      d.W_Process.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      d.W_NumberID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      d.W_DocName.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchDep && matchProc && matchSearchTerm && matchNumberID;
 
-  });
+  // filteredData ถ้าต้องกรอง process ด้วย ก็เอา selectedProcess มารวม
+  const filteredData = useMemo(() => {
+    return data.filter((d) => {
+      const matchDep = selectedDepartment ? d.W_Dep === selectedDepartment : true;
+      const matchProc = selectedProcess ? d.W_Process === selectedProcess : true;
+      // ...เงื่อนไขอื่น ๆ
+      const matchNumberID = selectedNumberID ? d.W_NumberID.includes(selectedNumberID) : true;
+      const matchSearchTerm =
+        d.W_Dep.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        d.W_Process.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        d.W_NumberID.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        d.W_DocName.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchDep && matchProc && matchSearchTerm && matchNumberID;
+    });
+  }, [data, selectedDepartment, selectedProcess, searchTerm, selectedNumberID]);
 
 
 
@@ -120,7 +128,7 @@ const App = () => {
                 }
                 className="w-full px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               >
-                <option value="">-- All Processes --</option>
+                <option value={selectedProcess || ""}>{selectedProcess}</option>
                 {allProcesses.map((proc) => (
                   <option key={proc} value={proc}>
                     {proc}
@@ -129,11 +137,10 @@ const App = () => {
               </select>
             </div>
             <div className="w-[25%] lg:w-[10%]"> {/* Clear Filters */}
-              {(selectedDep || selectedProcess || searchTerm) && (
+              {(selectedProcess || searchTerm) && (
                 <div className="flex w-full justify-center items-center">
                   <button
                     onClick={() => {
-                      setSelectedDep(null);
                       setSelectedProcess(null);
                       setSearchTerm("");
                     }}

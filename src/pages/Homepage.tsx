@@ -14,11 +14,15 @@ interface DocumentType {
 }
 const NUM_PARTICLES = 80;
 const LOCAL_STORAGE_KEY = "selectedDepartment";
+const LOCAL_STORAGE_KEY2 = "selectedProcess";
 
 const Homepage = () => {
     const navigate = useNavigate();
     const [selectedDepartment, setSelectedDepartment] = useState<string | null>(() => {
         return localStorage.getItem(LOCAL_STORAGE_KEY) || null;
+    });
+    const [selectedProcess, setSelectedProcess] = useState<string | null>(() => {
+        return localStorage.getItem(LOCAL_STORAGE_KEY2) || null;
     });
     const [data, setData] = useState<DocumentType[] | null>(null);
 
@@ -39,8 +43,30 @@ const Homepage = () => {
             localStorage.setItem(LOCAL_STORAGE_KEY, selectedDepartment);
         }
     }, [selectedDepartment]);
+    useEffect(() => {
+        if (selectedProcess) {
+            localStorage.setItem(LOCAL_STORAGE_KEY2, selectedProcess);
+        } else {
+            localStorage.removeItem(LOCAL_STORAGE_KEY2);
+        }
+    }, [selectedProcess]);
 
-    const departments = Array.from(new Set(data?.map((item) => item.W_Dep)));
+    const departments = Array.from(
+        new Set(data?.map((item) => item.W_Dep) ?? [])
+    );
+
+    const allProcesses = Array.from(
+        new Set(
+            (data
+                ?.filter((d: { W_Dep: string }) =>
+                    !selectedDepartment || d.W_Dep === selectedDepartment
+                )
+                .map((d: { W_Process: any }) => d.W_Process)
+                .filter(Boolean)) ??
+            []
+        )
+    );
+
 
     const handleSelectDepartment = (dep: string) => {
         if (selectedDepartment === dep) {
@@ -50,41 +76,21 @@ const Homepage = () => {
             navigate("/FilterSearch");
         }
     };
+    const handleSelectProcess = (proc: string) => {
+        if (selectedProcess === proc) {
+            setSelectedProcess(null);
+        } else {
+            setSelectedProcess(proc);
+            // ถ้าต้องการ navigate ต่อ ก็ใส่ตรงนี้
+        }
+    };
+
 
     const renderFilter = () => (
-        <div className="flex flex-col
-      bg-white/25           /* สีขาวโปร่ง 25 % */
-      backdrop-blur-lg      /* เบลอพื้นหลัง */
-      rounded-3xl shadow-2xl
-      p-6 gap-6 w-full max-w-lg items-center
-      ring-1 ring-white/40  /* เส้นขอบแก้วบาง ๆ */
-      hover:scale-[1.015] transition-transform duration-300">
+        <div className="flex flex-col bg-white/25 backdrop-blur-lg rounded-3xl shadow-2xl p-6 gap-6 w-full max-w-lg items-center ring-1 ring-white/40 hover:scale-[1.015] transition-transform duration-300">
+            {/* ... (โลโก้ + ชื่อเรื่อง + ปุ่มแผนก) */}
 
-            {/* LOGO */}
-            <div className="bg-white/80 rounded-full shadow-md">
-                <img
-                    src="/public/images/LOGO3.png"
-                    alt="Logo"
-                    style={{
-                        padding: '1rem',
-                        height: '60px',
-                        width: '60px',
-                        objectFit: 'contain',
-                        boxSizing: 'content-box',
-                    }}
-                />
-            </div>
-
-            {/* TITLE */}
-            <h1 className="text-2xl sm:text-3xl font-bold font-kanit text-blue-900 text-center uppercase">
-                ระบบค้นหา เอกสารกระบวนการทำงาน
-            </h1>
-
-            <h2 className="text-lg sm:text-xl font-kanit text-blue-900 text-center uppercase">
-                กรุณาเลือกแผนก :
-            </h2>
-
-            {/* BUTTONS */}
+            {/* ปุ่มแผนก */}
             <div className="flex flex-wrap justify-center gap-3 sm:gap-5">
                 {departments.map((dep) => {
                     const isSelected = selectedDepartment === dep;
@@ -93,10 +99,9 @@ const Homepage = () => {
                             key={dep}
                             onClick={() => handleSelectDepartment(dep)}
                             aria-pressed={isSelected}
-                            className={`py-2 px-6 rounded-full border font-semibold text-base shadow-md transition duration-200
-              ${isSelected
-                                    ? "bg-blue-700 text-white border-blue-700 scale-105 ring-4 ring-blue-300"
-                                    : "bg-white/80 text-blue-800 border-blue-300 hover:bg-white hover:text-blue-900"
+                            className={`py-2 px-6 rounded-full border font-semibold text-base shadow-md transition duration-200 ${isSelected
+                                ? "bg-blue-700 text-white border-blue-700 scale-105 ring-4 ring-blue-300"
+                                : "bg-white/80 text-blue-800 border-blue-300 hover:bg-white hover:text-blue-900"
                                 }`}
                         >
                             {dep}
@@ -104,8 +109,36 @@ const Homepage = () => {
                     );
                 })}
             </div>
+
+            {/* ปุ่ม Process: แสดงเฉพาะเมื่อเลือก Department แล้ว */}
+            {selectedDepartment && (
+                <>
+                    <h3 className="text-lg font-kanit text-blue-900 uppercase">
+                        เลือกกระบวนการ :
+                    </h3>
+                    <div className="flex flex-wrap justify-center gap-3 sm:gap-5">
+                        {allProcesses.map((proc) => {
+                            const isProcSelected = selectedProcess === proc;
+                            return (
+                                <button
+                                    key={proc}
+                                    onClick={() => handleSelectProcess(proc)}
+                                    aria-pressed={isProcSelected}
+                                    className={`py-2 px-6 rounded-full border font-semibold text-base shadow-md transition duration-200 ${isProcSelected
+                                        ? "bg-green-600 text-white border-green-600 scale-105 ring-4 ring-green-300"
+                                        : "bg-white/80 text-green-800 border-green-300 hover:bg-white hover:text-green-900"
+                                        }`}
+                                >
+                                    {proc}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </>
+            )}
         </div>
     );
+
 
 
 
