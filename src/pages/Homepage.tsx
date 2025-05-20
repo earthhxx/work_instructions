@@ -89,7 +89,7 @@ const Homepage = () => {
                         </h2>
 
                         {/* Process Buttons */}
-                        <div className="grid grid-cols-3 lg:grid-cols-4  justify-center items-center gap-5 ">
+                        <div className="grid grid-cols-3 lg:grid-cols-5  justify-center items-center gap-5 ">
                             {processes.map((proc) => (
                                 <button
                                     key={proc}
@@ -187,7 +187,7 @@ const Homepage = () => {
                 </svg>
             </div>
 
-            <div className="flex justify-center z-10 w-full max-w-4xl">
+            <div className="flex justify-center z-10 w-full max-w-[70%]">
                 {data ? renderFilter() : <p className="text-white text-xl">Loading...</p>}
             </div>
             <canvas ref={canvasRef} className="absolute inset-0" />
