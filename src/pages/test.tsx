@@ -24,7 +24,7 @@ const app = () => {
             passedscores:String,
         }
     ]
-    const listpassstudentscoretoObject = (passedNames,passedscores).map (passstudentscore);
+
     console.log(passedNames);   // ควรได้ ["Alice", "Cathy", "David"]
     console.log(scoreMessages); /* ควรได้ [
         "Alice ได้คะแนน 82 คะแนน",

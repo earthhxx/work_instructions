@@ -25,7 +25,7 @@ const Homepage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get("/api/ShowResult");
+                const res = await axios.get("/api/Result");
                 setData(res.data);
             } catch (err) {
                 console.error("❌ Error fetching data:", err);
@@ -50,7 +50,7 @@ const Homepage = () => {
             new Set(
                 data!
                     .filter((d) => d.W_Dep === dep)
-                    
+
                     .map((d) => d.W_Process)
                     .filter(Boolean)
             )
@@ -94,10 +94,11 @@ const Homepage = () => {
                                 <button
                                     key={proc}
                                     onClick={() => handleClick(department, proc)}
-                                    className="w-full py-2 px-6 rounded-full border font-semibold text-base shadow-md transition duration-200 bg-white/80 text-green-800 border-green-300 hover:bg-white hover:text-green-900"
+                                    className="w-full py-2 px-6 rounded-full border font-semibold text-base shadow-md transition duration-200 bg-white text-black border-blue-400/70 hover:bg-blue-600 hover:text-white"
                                 >
                                     {proc}
                                 </button>
+
                             ))}
                         </div>
                     </div>

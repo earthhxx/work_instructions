@@ -164,6 +164,40 @@ app.get("/api/Result", async (req, res) => {
   }
 });
 
+app.get("/api/Result/CteLatestRevisions", async (req, res) => {
+  const query = `
+            WITH LatestRevisions AS (
+            SELECT 
+                [W_NumberID],
+                MAX([W_Revision]) AS MaxRevision
+            FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]
+            GROUP BY [W_NumberID]
+        )
+
+          SELECT 
+              w.[id],w.[W_NumberID], 
+              w.[W_Revision], 
+              w.[W_DocName], 
+              w.[W_Dep], 
+              w.[W_Process], 
+              w.[W_PDFs], 
+              w.[W_name], 
+              w.[Datetime]
+          FROM [DASHBOARD].[dbo].[WORKINSTRUCTION] w
+          INNER JOIN LatestRevisions lr ON 
+              w.[W_NumberID] = lr.[W_NumberID] AND 
+              w.[W_Revision] = lr.[MaxRevision]
+          ORDER BY w.[W_NumberID], w.[W_Revision]
+  `;
+  try {
+    const data = await runQueryOnDb1(query);
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching Result:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
+
 // API: Get distinct processes
 app.get("/api/Process", async (req, res) => {
   const query = `SELECT DISTINCT [W_Process] FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]`;

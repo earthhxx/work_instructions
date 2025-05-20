@@ -36,13 +36,11 @@ const App = () => {
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
   // Fetch ด้วย optional query param
-  const fetchData = async (processFilter?: string) => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const url = processFilter
-        ? `/api/ShowResult?process=${encodeURIComponent(processFilter)}`
-        : "/api/ShowResult";
-      const res = await axios.get(url);
+     
+      const res = await axios.get("/api/Result/CteLatestRevisions");
       setData(res.data);
     } catch (err) {
       console.error("❌ Error fetching data:", err);
@@ -170,7 +168,7 @@ const App = () => {
           <div className="flex flex-wrap w-full justify-center items-center lg:justify-start lg:items-start gap-4 text-center">
             {filteredNumIDs.map((numid) => {
               const isSelected = selectedNumberID === numid;
-              const Displays = numid === "FM" ? "SECTION" :numid;
+              const Displays = numid === "FM" ? "CAUTION POINT" :numid;
 
               return (
                 <button
@@ -178,7 +176,7 @@ const App = () => {
                   type="button"
                   onClick={() => setSelectedNumberID(isSelected ? null : numid)}
                   aria-pressed={isSelected}
-                  className={` w-[15%] lg:w-[15%] py-3 px-4 rounded-2xl border text-sm text-center font-medium transition-all duration-200 ease-in-out
+                  className={` w-[20%] lg:w-[10%] py-3 px-4 rounded-2xl border text-sm text-center font-medium transition-all duration-200 ease-in-out
                 ${isSelected
                       ? "bg-blue-900 text-white shadow-md ring-2 ring-blue-300"
                       : "bg-white text-gray-800 hover:bg-gray-100 border-gray-300"
@@ -207,7 +205,7 @@ const App = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto w-full rounded-xl border border-gray-200 shadow-sm">
+      <div className="overflow-x-auto w-full rounded-xl border border-gray-200 shadow-sm mb-4">
         <table className="w-full border-collapse text-[14px] lg:text-xl text-left">
           <thead>
             <tr className="bg-gray-100">
