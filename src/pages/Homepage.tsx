@@ -82,19 +82,19 @@ const Homepage = () => {
             {/* Departments & Processes */}
             <div className="w-full">
                 {groups.map(({ department, processes }) => (
-                    <div key={department} className="mb-8">
+                    <div key={department} className="flex flex-col mb-8">
                         {/* Department Header */}
                         <h2 className="text-2xl font-bold font-kanit text-blue-900 uppercase mb-3">
                             {department}
                         </h2>
 
                         {/* Process Buttons */}
-                        <div className="flex flex-wrap gap-3 sm:gap-5">
+                        <div className="grid grid-cols-3 lg:grid-cols-4  justify-center items-center gap-5 ">
                             {processes.map((proc) => (
                                 <button
                                     key={proc}
                                     onClick={() => handleClick(department, proc)}
-                                    className="py-2 px-6 rounded-full border font-semibold text-base shadow-md transition duration-200 bg-white/80 text-green-800 border-green-300 hover:bg-white hover:text-green-900"
+                                    className="w-full py-2 px-6 rounded-full border font-semibold text-base shadow-md transition duration-200 bg-white/80 text-green-800 border-green-300 hover:bg-white hover:text-green-900"
                                 >
                                     {proc}
                                 </button>
@@ -151,7 +151,7 @@ const Homepage = () => {
     }, []);
 
     return (
-        <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-10 bg-gradient-to-t from-blue-800/90 via-sky-400 to-blue-800/10">
+        <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-10 bg-gradient-to-t from-sky-200 via-sky-100 to-[#fdfdfb]">
             <div className="absolute inset-0 pointer-events-none z-0">
                 <div className="absolute inset-0 bg-gradient-radial from-white/10 via-white/5 to-transparent blur-3xl opacity-30" />
                 <svg width="100%" height="100%" className="absolute inset-0" style={{ zIndex: 1 }}>

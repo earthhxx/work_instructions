@@ -167,9 +167,10 @@ const App = () => {
           data.some((d) => d.W_NumberID.includes(numid) && d.W_Process === selectedProcess)
         );
         return filteredNumIDs.length > 0 ? (
-          <div className="flex w-full justify-center items-center lg:justify-start lg:items-start gap-4">
+          <div className="flex flex-wrap w-full justify-center items-center lg:justify-start lg:items-start gap-4 text-center">
             {filteredNumIDs.map((numid) => {
               const isSelected = selectedNumberID === numid;
+              const Displays = numid === "FM" ? "SECTION" :numid;
 
               return (
                 <button
@@ -177,13 +178,14 @@ const App = () => {
                   type="button"
                   onClick={() => setSelectedNumberID(isSelected ? null : numid)}
                   aria-pressed={isSelected}
-                  className={`w-[8%] lg:w-[5%] py-3 px-4 rounded-2xl border text-sm text-center font-medium transition-all duration-200 ease-in-out
+                  className={` w-[15%] lg:w-[15%] py-3 px-4 rounded-2xl border text-sm text-center font-medium transition-all duration-200 ease-in-out
                 ${isSelected
                       ? "bg-blue-900 text-white shadow-md ring-2 ring-blue-300"
                       : "bg-white text-gray-800 hover:bg-gray-100 border-gray-300"
                     }`}
                 >
-                  {numid}
+           
+                  {Displays}
                 </button>
               );
             })}
