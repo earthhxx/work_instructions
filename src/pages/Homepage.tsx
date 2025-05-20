@@ -75,7 +75,7 @@ const Homepage = () => {
             </div>
 
             {/* TITLE */}
-            <h1 className="text-2xl sm:text-3xl font-bold font-kanit text-blue-900 text-center uppercase">
+            <h1 className="text-3xl lg:text-4xl font-bold font-kanit text-blue-900 text-center uppercase">
                 ระบบค้นหา เอกสารกระบวนการทำงาน
             </h1>
 
@@ -89,7 +89,7 @@ const Homepage = () => {
                         </h2>
 
                         {/* Process Buttons */}
-                        <div className="grid grid-cols-3 lg:grid-cols-5  justify-center items-center gap-5 ">
+                        <div className="grid grid-cols-2 lg:grid-cols-5  justify-center items-center gap-5 ">
                             {processes.map((proc) => (
                                 <button
                                     key={proc}
