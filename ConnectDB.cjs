@@ -53,6 +53,49 @@ async function getDbPool(dbName) {
   return pool;
 }
 
+//new 120-2
+app.get('/api/120-2/scan-to-db-120-2', async (req, res) => {
+  const productOrderNo = req.query.productOrderNo;
+
+  if (!productOrderNo) {
+    return res.status(400).json({ success: false, message: 'Missing productOrderNo' });
+  }
+
+  try {
+    const pool = await getDbPool("db2");
+
+    // 🧪 DEBUG DB name
+    const dbNameResult = await pool.request().query('SELECT DB_NAME() AS dbName');
+    console.log('📌 Connected to DB:', dbNameResult.recordset[0].dbName);
+
+    // ✅ ตรวจสอบว่า table มีจริงไหม
+    const tableCheck = await pool.request().query(`
+      SELECT TOP 1 * 
+      FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'tb_ProductOrders'
+    `);
+
+    console.log('📌 Table exists:', tableCheck.recordset.length > 0);
+
+    const result = await pool.request()
+      .input('productOrderNo', sql.NVarChar, productOrderNo)
+      .query(`
+        SELECT productOrderNo, productName, ProcessLine 
+        FROM [NewFCXT(IM Thailand)].[dbo].[tb_ProductOrders] 
+        WHERE productOrderNo = @productOrderNo
+      `);
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    return res.json({ success: true, data: result.recordset[0] });
+  } catch (err) {
+    console.error('❌ DB Error:', err.message || err);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
 // API: Get employee name by id (db2)
 app.get("/api/get-employee/:id", async (req, res) => {
   const empId = req.params.id;

@@ -7,6 +7,7 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import { GoCheckCircle } from "react-icons/go";
+import { useNavigate } from "react-router-dom";
 
 type DataItem120_2 = {
     productOrderNo: string;
@@ -26,51 +27,37 @@ const main = () => {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [productOrderNo, setProductOrderNo] = useState("");
     const [data120_2, setData120_2] = useState<DataItem120_2 | null>(null);
+    const [isLoading120_2, setIsLoading120_2] = useState(true);
+    const router = useNavigate();
 
 
-    // useEffect (()=>)
-    // const fetchPdfData2 = async () => {
 
-    //     try {
-    //         if (!data120_2?.ProcessLine || !data120_2?.productName ) {
-    //             alert("⛔ พารามิเตอร์ไม่ครบ ไม่โหลด PDF")
-    //             console.warn("⛔ พารามิเตอร์ไม่ครบ ไม่โหลด PDF");
-    //             return;
-    //         }
+    // Fetching Data 120-2
+    const fetchData = async () => {
+        if (!productOrderNo) return;
+        console.log("Fetching data for ProductOrderNo:", productOrderNo);
+        setIsLoading120_2(true);
 
-    //         const res = await fetch(
-    //             `/api/120-9/checkreflow/load-pdf-data2?R_Line=${data120_2.ProcessLine}&R_Model=${data120_2.productName}&productOrderNo=${ProductOrderNo}`
-    //         );
-    //         const { data } = await res.json();
-    //         console.log("✅ ได้ข้อมูล PDF2:", data);
+        try {
+            console.log("ProductOrderNo:", productOrderNo);
+            const res = await fetch(`/api/120-2/scan-to-db-120-2?productOrderNo=${productOrderNo}`);
+            const data = await res.json();
+            console.log("Fetched Data from 120-2:", data);
 
-    //         if (data?.R_PDF2) {
-    //             const decoded = atob(data.R_PDF2);
-    //             if (decoded.startsWith('%PDF-') || decoded.startsWith('JVBER')) {
-    //                 handleShowPdf2(data.R_PDF2);
-    //             } else {
-    //                 alert("PDF2 format ผิดพลาด");
-    //                 console.warn("⚠️ PDF2 format ผิดพลาด");
-    //                 setPdfWarning2('PDF2 format ผิดพลาด');
+            if (!data || !data.data || data.success === false || data.error) {
+                alert("ข้อมูลไม่ถูกต้องหรือว่างเปล่า");
+                router('/');
+            }
 
-    //             }
-    //         } else if (!data || data.R_PDF2 === "null" || "undifined") {
-    //             setshowAlert(true);
-    //             setAlertData("ยังไม่มีการอัพโหลดผลการวัดโปรไฟล์");
-    //             console.warn("⚠️ ไม่พบข้อมูล R_PDF2");
-    //             setPdfWarning2('ยังไม่มีการอัพโหลด PDF2');
-    //         } else {
-    //             alert("ยังไม่มีการอัพโหลด PDF2 error 2");
-    //             console.warn("⚠️ ไม่พบข้อมูล R_PDF2 error 2");
-    //             setPdfWarning2('ยังไม่มีการอัพโหลด PDF2');
-
-    //         }
-    //     } catch (err) {
-    //         alert("โหลด PDF2 ผิดพลาด");
-    //         console.error("❌ โหลด PDF2 ล้มเหลว:", err);
-    //         setPdfWarning2("เกิดข้อผิดพลาดระหว่างโหลด PDF");
-    //     }
-    // };
+            setData120_2(data.data);
+        } catch (error) {
+            console.error("Failed to fetch 120-2:", error);
+            alert(`api ผิดพลาด`);
+            router('/');
+        } finally {
+            setIsLoading120_2(false);
+        }
+    };
 
 
     useEffect(() => {
@@ -112,21 +99,7 @@ const main = () => {
 
         checkPdfAccess();
     }, []);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await axios.get("/api/ShowResult");
-                setData(res.data);
-            } catch (err) {
-                console.error("❌ Error fetching data:", err);
-            } finally {
-                setLoading(false);
-                console.log(loading);
-                console.log(data);
-            }
-        };
-        fetchData();
-    }, []);
+
 
     const handleShowPdf = (PDFPATH: string) => {
         const url = `http://192.168.130.240:5009/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
@@ -257,6 +230,7 @@ const main = () => {
                         </div>
                         <div
                             onClick={() => {
+                                fetchData();
                                 handleShowPdf("\\\\192.168.120.9\\DataDocument\\SD-FC-EN-04-02 ขั้นตอนการเปลี่ยนแปลงโปรแกรม AOI.pdf");
                                 setHomeStage("pdf");
                             }}
