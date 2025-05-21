@@ -64,7 +64,7 @@ const Homepage = () => {
     };
 
     const renderFilter = () => (
-        <div className="flex flex-col bg-white/25 backdrop-blur-lg rounded-3xl shadow-2xl p-6 gap-6 w-full items-center ring-1 ring-white/40 hover:scale-[1.015] transition-transform duration-300">
+        <div className="flex flex-col w-full bg-white/25 backdrop-blur-lg rounded-3xl shadow-2xl p-6 gap-6 items-center ring-1 ring-white/40 hover:scale-[1.015] transition-transform duration-300">
             {/* LOGO */}
             <div className="bg-white/80 rounded-full shadow-md">
                 <img
@@ -80,7 +80,7 @@ const Homepage = () => {
             </h1>
 
             {/* Departments & Processes */}
-            <div className="w-full">
+            <div className="">
                 {groups.map(({ department, processes }) => (
                     <div key={department} className="flex flex-col mb-8">
                         {/* Department Header */}
@@ -89,7 +89,7 @@ const Homepage = () => {
                         </h2>
 
                         {/* Process Buttons */}
-                        <div className="grid grid-cols-2 lg:grid-cols-5  justify-center items-center gap-5 ">
+                        <div className="grid grid-cols-2 lg:grid-cols-6  justify-center items-center gap-6 ">
                             {processes.map((proc) => (
                                 <button
                                     key={proc}
@@ -187,7 +187,7 @@ const Homepage = () => {
                 </svg>
             </div>
 
-            <div className="flex justify-center z-10 w-full max-w-[70%]">
+            <div className="flex justify-center z-10 w-full max-w-[75%]">
                 {data ? renderFilter() : <p className="text-white text-xl">Loading...</p>}
             </div>
             <canvas ref={canvasRef} className="absolute inset-0" />
