@@ -175,7 +175,7 @@ const Main = () => {
                     <Worker workerUrl="/pdf.worker.min.js">
                         <Viewer
                             fileUrl={pdfUrl}
-                            defaultScale={SpecialZoomLevel.PageFit}
+                            defaultScale={3.0}
                             plugins={[defaultLayoutPluginInstance]}
                         />
                     </Worker>
