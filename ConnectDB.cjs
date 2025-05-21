@@ -96,6 +96,46 @@ app.get('/api/120-2/scan-to-db-120-2', async (req, res) => {
   }
 });
 
+//new 120-9
+app.get('/api/120-9/Partlist', async (req, res) => {
+  const line = req.query.line;
+  const model = req.query.model;
+
+  if (!line && !model) {
+    return res.status(400).json({ success: false, message: 'Missing line || model' });
+  }
+
+  try {
+    const pool = await getDbPool("db1");
+
+    const result = await pool.request()
+      .input('line', sql.NVarChar, line)
+      .input('model', sql.NVarChar, model)
+      .query(`
+        SELECT [id]
+            ,[PL_Line]
+            ,[PL_Id]
+            ,[PL_ModelName]
+            ,[PL_Rev]
+            ,[PL_PDF]
+            ,[PL_User]
+            ,[Datetime]
+        FROM [DASHBOARD].[dbo].[PARTLIST]
+        WHERE [PL_Line] = @line AND [PL_ModelName] = @model
+      `);
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    return res.json({ success: true, data: result.recordset });
+  } catch (err) {
+    console.error('❌ DB Error:', err.message || err);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
 // API: Get employee name by id (db2)
 app.get("/api/get-employee/:id", async (req, res) => {
   const empId = req.params.id;
@@ -312,9 +352,20 @@ app.get("/api/ShowResult", async (req, res) => {
 // API: Serve PDF file inline if path allowed
 app.get("/api/open-pdf", async (req, res) => {
   const filePath = req.query.path;
-  const allowedRoot = "\\\\192.168.120.9\\DataDocument";
 
-  if (!filePath || !filePath.startsWith(allowedRoot)) {
+  // Whitelisted root directories
+  const allowedRoots = [
+    "\\\\192.168.120.9\\DataDocument",
+    "\\\\192.168.120.9\\DataPartList"
+  ];
+
+  // Check if filePath is under allowed roots
+  if (
+    !filePath ||
+    !allowedRoots.some((root) =>
+      path.resolve(filePath).startsWith(path.resolve(root))
+    )
+  ) {
     return res.status(403).send("Access denied");
   }
 

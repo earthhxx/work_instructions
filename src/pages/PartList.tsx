@@ -1,6 +1,5 @@
 import { Html5Qrcode, Html5QrcodeScanner } from "html5-qrcode";
 import { BsUpcScan } from "react-icons/bs";
-import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 import '@react-pdf-viewer/core/lib/styles/index.css';
@@ -8,6 +7,8 @@ import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import { GoCheckCircle } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
+import { SpecialZoomLevel } from '@react-pdf-viewer/core';
+
 
 type DataItem120_2 = {
     productOrderNo: string;
@@ -15,11 +16,20 @@ type DataItem120_2 = {
     ProcessLine: string;
 };
 
+type DataItem120_9 = {
+    id: number;
+    PL_Line: string;
+    PL_Id: string;
+    PL_ModelName: string;
+    PL_Rev: string;
+    PL_PDF: string;
+    PL_User: string;
+};
+
+
 
 const main = () => {
     const [homeStage, setHomeStage] = useState<"home" | "scan" | "pdf">("scan");
-    const [data, setData] = useState<DocumentType[]>([]);
-    const [loading, setLoading] = useState(true);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const defaultLayoutPluginInstance = defaultLayoutPlugin();
     const cardRef = useRef<HTMLDivElement>(null);
@@ -27,12 +37,14 @@ const main = () => {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [productOrderNo, setProductOrderNo] = useState("");
     const [data120_2, setData120_2] = useState<DataItem120_2 | null>(null);
+    const [data120_9, setData120_9] = useState<DataItem120_9 | null>(null);
     const [isLoading120_2, setIsLoading120_2] = useState(true);
+    const [isLoading120_9, setIsLoading120_9] = useState(true);
     const router = useNavigate();
 
 
 
-    // Fetching Data 120-2
+    // Fetching Data 120_2
     const fetchData = async () => {
         if (!productOrderNo) return;
         console.log("Fetching data for ProductOrderNo:", productOrderNo);
@@ -59,6 +71,52 @@ const main = () => {
         }
     };
 
+    useEffect(() => {
+        // Fetching Data 120_9
+        const fetchData120_9 = async () => {
+            if (!data120_2?.ProcessLine || !data120_2?.productName) return;
+
+            console.log("Fetching data for line && model:", (data120_2.ProcessLine, ',', data120_2.ProcessLine));
+            setIsLoading120_9(true);
+
+            try {
+                const res = await fetch(`/api/120-9/Partlist?line=${data120_2.ProcessLine}&model=${data120_2.productName}`);
+                const data = await res.json();
+                console.log('in api', data);
+                if (!data || !data.data || data.success === false || data.error) {
+                    alert("ข้อมูลไม่ถูกต้องหรือว่างเปล่า");
+                    router('/');
+                }
+
+                setData120_9(data.data[0]);
+            } catch (error) {
+                console.error("Failed to fetch 120-2:", error);
+                alert(`api ผิดพลาด`);
+                router('/');
+            } finally {
+                setIsLoading120_9(false);
+            }
+        };
+        fetchData120_9();
+    }, [data120_2])
+
+
+    useEffect(() => {
+        console.log('useeff')
+        console.log('useeff', data120_9);
+        const url_9 = data120_9?.PL_PDF;
+        if (url_9) {
+            console.log('useefffff', url_9)
+            handleShowPdf(url_9);
+        }
+    }, [data120_9]);
+
+    const handleShowPdf = (PDFPATH: string) => {
+        console.log('before', PDFPATH);
+        const url = `http://192.168.130.240:5009/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
+        setPdfUrl(url);
+    };
+
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -77,34 +135,6 @@ const main = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [homeStage]);
-    useEffect(() => {
-        const checkPdfAccess = async () => {
-            try {
-                const testUrl = `http://192.168.130.240:5009/api/open-pdf?path=${encodeURIComponent("\\192.168.120.9\\DataDocument\\SD-PD-03-00 ขั้นตอนการจัดการเมื่อ AOI ตรวจพบ NG.pdf")}`;
-                console.log("Checking PDF access with URL:", testUrl);
-                const response = await axios.head(testUrl);
-                if (response.status !== 200) {
-                    console.warn("PDF access check failed with status:", response.status);
-                } else {
-                    console.log("PDF access check succeeded.");
-                }
-            } catch (err) {
-                if (axios.isAxiosError(err)) {
-                    console.error("❌ Axios error while checking PDF access:", err.message, "\nResponse:", err.response);
-                } else {
-                    console.error("❌ Unexpected error while checking PDF access:", err);
-                }
-            }
-        };
-
-        checkPdfAccess();
-    }, []);
-
-
-    const handleShowPdf = (PDFPATH: string) => {
-        const url = `http://192.168.130.240:5009/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
-        setPdfUrl(url);
-    };
 
     const renderpdf = () => {
         return (
@@ -126,7 +156,7 @@ const main = () => {
                             <Worker workerUrl="/pdf.worker.min.js">
                                 <Viewer
                                     fileUrl={pdfUrl}
-                                    defaultScale={1.0}
+                                    defaultScale={SpecialZoomLevel.PageFit}
                                     plugins={[defaultLayoutPluginInstance]}
                                 />
                             </Worker>
@@ -231,7 +261,6 @@ const main = () => {
                         <div
                             onClick={() => {
                                 fetchData();
-                                handleShowPdf("\\\\192.168.120.9\\DataDocument\\SD-FC-EN-04-02 ขั้นตอนการเปลี่ยนแปลงโปรแกรม AOI.pdf");
                                 setHomeStage("pdf");
                             }}
                             className="flex flex-col text-xl text-white justify-center items-center font-kanit w-1/2">

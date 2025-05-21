@@ -39,7 +39,7 @@ const App = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-     
+
       const res = await axios.get("/api/Result/CteLatestRevisions");
       setData(res.data);
     } catch (err) {
@@ -93,8 +93,11 @@ const App = () => {
 
   // Show PDF in viewer
   const handleShowPdf = (PDFPATH: string) => {
+    console.log('before', PDFPATH);
     const url = `http://192.168.130.240:5009/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
     setPdfUrl(url);
+    console.log('url', url)
+
   };
 
 
@@ -133,7 +136,7 @@ const App = () => {
                 }
                 className="w-full px-4 py-2 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               >
-                <option value={""}>{ selectedProcess || '--ALL PROCESS--'}</option>
+                <option value={""}>{selectedProcess || '--ALL PROCESS--'}</option>
                 {allProcesses.map((proc) => (
                   <option key={proc} value={proc}>
                     {proc}
@@ -168,7 +171,7 @@ const App = () => {
           <div className="flex flex-wrap w-full justify-center items-center lg:justify-start lg:items-start gap-4 text-center">
             {filteredNumIDs.map((numid) => {
               const isSelected = selectedNumberID === numid;
-              const Displays = numid === "FM" ? "CAUTION POINT" :numid;
+              const Displays = numid === "FM" ? "CAUTION POINT" : numid;
 
               return (
                 <button
@@ -182,7 +185,7 @@ const App = () => {
                       : "bg-white text-gray-800 hover:bg-gray-100 border-gray-300"
                     }`}
                 >
-           
+
                   {Displays}
                 </button>
               );
@@ -226,6 +229,7 @@ const App = () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       handleShowPdf(item.W_PDFs);
+
                     }}
                     className="px-3 py-1 bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
                   >
