@@ -58,7 +58,6 @@ const Main = () => {
                 navigate("/");
                 return;
             }
-
             setData120_2(result.data);
         } catch (error) {
             console.error("Failed to fetch 120-2:", error);
@@ -111,7 +110,7 @@ const Main = () => {
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (homeStage === "scan" && cardRef.current && !cardRef.current.contains(event.target as Node)) {
-                setHomeStage("pdf");
+                setHomeStage("scan")
                 stopCamera();
             }
         };
@@ -167,7 +166,7 @@ const Main = () => {
                     <button
                         onClick={() => {
                             setPdfUrl(null);
-                            setHomeStage("scan");
+                            navigate("/");
                         }}
                         className="absolute top-4 right-4 z-50 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                     >
