@@ -89,7 +89,7 @@ const Homepage = () => {
                         </h2>
 
                         {/* Process Buttons */}
-                        <div className="grid grid-cols-2 lg:grid-cols-6  justify-center items-center gap-6 ">
+                        <div className="grid grid-cols-2 lg:grid-cols-5  justify-center items-center gap-6 ">
                             {processes.map((proc) => (
                                 <button
                                     key={proc}
