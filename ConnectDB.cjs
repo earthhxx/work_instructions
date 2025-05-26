@@ -112,16 +112,19 @@ app.get('/api/120-9/Partlist', async (req, res) => {
       .input('line', sql.NVarChar, line)
       .input('model', sql.NVarChar, model)
       .query(`
-        SELECT [id]
-            ,[PL_Line]
-            ,[PL_Id]
-            ,[PL_ModelName]
-            ,[PL_Rev]
-            ,[PL_PDF]
-            ,[PL_User]
-            ,[Datetime]
+        SELECT TOP 1 
+            [id],
+            [PL_Line],
+            [PL_Id],
+            [PL_ModelName],
+            [PL_Rev],
+            [PL_PDF],
+            [PL_User],
+            [Datetime]
         FROM [DASHBOARD].[dbo].[PARTLIST]
-        WHERE [PL_Line] = @line AND [PL_ModelName] = @model
+        WHERE [PL_Line] = @line 
+          AND [PL_ModelName] = @model
+        ORDER BY [Datetime] DESC;
       `);
 
     if (result.recordset.length === 0) {
