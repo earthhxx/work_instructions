@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Html5Qrcode, Html5QrcodeScanner } from "html5-qrcode";
+import { Html5Qrcode } from "html5-qrcode";
 import { BsUpcScan } from "react-icons/bs";
 import { GoCheckCircle } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import { Viewer, Worker, SpecialZoomLevel } from "@react-pdf-viewer/core";
+import { Viewer, Worker} from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 
 import "@react-pdf-viewer/core/lib/styles/index.css";
@@ -34,8 +34,7 @@ const Main = () => {
     const [data120_9, setData120_9] = useState<DataItem120_9 | null>(null);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-    const [isLoading120_2, setIsLoading120_2] = useState(true);
-    const [isLoading120_9, setIsLoading120_9] = useState(true);
+
 
     const cardRef = useRef<HTMLDivElement>(null);
     const scannerRef = useRef<Html5Qrcode | null>(null);
@@ -48,7 +47,7 @@ const Main = () => {
     const fetchData120_2 = async () => {
         if (!productOrderNo) return;
 
-        setIsLoading120_2(true);
+    
         try {
             const res = await fetch(`/api/120-2/scan-to-db-120-2?productOrderNo=${productOrderNo}`);
             const result = await res.json();
@@ -64,7 +63,7 @@ const Main = () => {
             alert("API 120-2 ผิดพลาด");
             navigate("/");
         } finally {
-            setIsLoading120_2(false);
+    
         }
     };
 
@@ -73,7 +72,6 @@ const Main = () => {
         const fetchData120_9 = async () => {
             if (!data120_2?.ProcessLine || !data120_2?.productName) return;
 
-            setIsLoading120_9(true);
             try {
                 const res = await fetch(`/api/120-9/Partlist?line=${data120_2.ProcessLine}&model=${data120_2.productName}`);
                 const result = await res.json();
@@ -90,7 +88,7 @@ const Main = () => {
                 alert("API 120-9 ผิดพลาด");
                 navigate("/");
             } finally {
-                setIsLoading120_9(false);
+
             }
         };
 
