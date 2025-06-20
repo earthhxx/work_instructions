@@ -182,7 +182,7 @@ app.get("/api/Result/CteLatestRevisions", async (req, res) => {
 // API: Get all WORKINSTRUCTION entries ordered by datetime desc
 app.get("/api/Result", async (req, res) => {
   const query = `
-    SELECT [id], [W_NumberID], [W_Revision], [W_DocName], [W_Dep], [W_Process], [W_PDFs], [W_name], [Datetime]
+     SELECT [W_Dep], [W_Process]
     FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]
     ORDER BY [Datetime] DESC
   `;
