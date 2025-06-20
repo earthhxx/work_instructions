@@ -1,136 +1,232 @@
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
+const multer = require("multer");
+const sql = require("mssql");
+const fs = require("fs").promises;
+const path = require("path");
+const cors = require("cors");
+
 const app = express();
-const port = 3010;
-const cors = require('cors');
 app.use(cors());
+app.use(express.json()); // parse JSON bodies if needed
 
+const PORT = process.env.PORT || 5009;
+const networkPath = process.env.NETWORK_PATH;
+const uploadDir = path.join(__dirname, process.env.UPLOAD_DIR || "uploads");
 
-// Mock data
-const documents = [
-  {
-    id: 10,
-    W_NumberID: "SD-PD-03",
-    W_Revision: "00",
-    W_DocName: "ขั้นตอนการจัดการเมื่อ AOI ตรวจพบ NG",
-    W_Dep: "PRO",
-    W_Process: "AOI",
-    W_PDFs: "\\\\server\\docs\\aoi-ng.pdf",
-    W_name: "Chittakorn Bangyeekhon",
-    Datetime: "2025-05-09 09:00:38.893"
-  },
-  {
-    id: 11,
-    W_NumberID: "SD-EN-01",
-    W_Revision: "01",
-    W_DocName: "Engineering Spec",
-    W_Dep: "EN",
-    W_Process: "Design",
-    W_PDFs: "\\\\server\\docs\\en-spec.pdf",
-    W_name: "Nattapong",
-    Datetime: "2025-05-10 10:10:10"
-  },
-  {
-    id: 12,
-    W_NumberID: "SD-QA-01",
-    W_Revision: "01",
-    W_DocName: "Quality Control Guideline",
-    W_Dep: "QA",
-    W_Process: "Inspection",
-    W_PDFs: "\\\\server\\docs\\qa-guide.pdf",
-    W_name: "Supansa",
-    Datetime: "2025-05-10 11:00:00"
-  },
-  {
-    id: 13,
-    W_NumberID: "SD-WH-01",
-    W_Revision: "01",
-    W_DocName: "Warehouse SOP",
-    W_Dep: "WH",
-    W_Process: "Storage",
-    W_PDFs: "\\\\server\\docs\\wh-sop.pdf",
-    W_name: "Kittichai",
-    Datetime: "2025-05-10 12:00:00"
-  },
-  {
-    id: 14,
-    W_NumberID: "SD-EN-02",
-    W_Revision: "02",
-    W_DocName: "PCB Layout Guideline",
-    W_Dep: "EN",
-    W_Process: "Layout",
-    W_PDFs: "\\\\server\\docs\\pcb-layout.pdf",
-    W_name: "Prapaporn",
-    Datetime: "2025-05-11 08:30:00"
-  },
-  {
-    id: 15,
-    W_NumberID: "SD-PRO-04",
-    W_Revision: "03",
-    W_DocName: "Reflow Oven Setup",
-    W_Dep: "PRO",
-    W_Process: "Reflow",
-    W_PDFs: "\\\\server\\docs\\reflow-setup.pdf",
-    W_name: "Anan",
-    Datetime: "2025-05-11 09:00:00"
-  },
-  {
-    id: 16,
-    W_NumberID: "SD-QA-02",
-    W_Revision: "01",
-    W_DocName: "Final QA Checklist",
-    W_Dep: "QA",
-    W_Process: "Final Check",
-    W_PDFs: "\\\\server\\docs\\qa-final-check.pdf",
-    W_name: "Rachada",
-    Datetime: "2025-05-11 14:15:00"
-  },
-  {
-    id: 17,
-    W_NumberID: "SD-WH-02",
-    W_Revision: "02",
-    W_DocName: "Raw Material Receiving",
-    W_Dep: "WH",
-    W_Process: "Receiving",
-    W_PDFs: "\\\\server\\docs\\wh-receive.pdf",
-    W_name: "Sarun",
-    Datetime: "2025-05-11 15:00:00"
-  },
-  {
-    id: 18,
-    W_NumberID: "SD-EN-03",
-    W_Revision: "01",
-    W_DocName: "Component Selection Rules",
-    W_Dep: "EN",
-    W_Process: "Component",
-    W_PDFs: "\\\\server\\docs\\component-rules.pdf",
-    W_name: "Warunee",
-    Datetime: "2025-05-12 09:45:00"
-  },
-  {
-    id: 19,
-    W_NumberID: "SD-PRO-05",
-    W_Revision: "01",
-    W_DocName: "SMT Line Operation",
-    W_Dep: "PRO",
-    W_Process: "SMT",
-    W_PDFs: "\\\\server\\docs\\smt-line.pdf",
-    W_name: "Phumin",
-    Datetime: "2025-05-12 10:20:00"
-  }
-];
+// Ensure upload directory exists
+fs.mkdir(uploadDir, { recursive: true }).catch(console.error);
 
-// Endpoint: /api/documents?dept=EN
-app.get('/api/documents', (req, res) => {
-  const { dept } = req.query;
-
-  if (dept) {
-    const filtered = documents.filter(doc => doc.W_Dep.toLowerCase() === dept.toLowerCase());
-    return res.json(filtered);
-  }
-
-  res.json(documents);
+// Multer setup: accept only PDFs
+const upload = multer({
+  dest: uploadDir,
+  fileFilter: (req, file, cb) => {
+    cb(null, file.mimetype === "application/pdf");
+  },
 });
 
-app.listen(port, () => {
-  console.log(`Mock API server running at http://localhost:${port}`);
+// Database configurations
+const dbConfigs = {
+  db1: {
+    user: process.env.DB1_USER,
+    password: process.env.DB1_PASSWORD,
+    server: process.env.DB1_SERVER,
+    database: process.env.DB1_DATABASE,
+    options: { encrypt: false, trustServerCertificate: true },
+  },
+  db2: {
+    user: process.env.DB2_USER,
+    password: process.env.DB2_PASSWORD,
+    server: process.env.DB2_SERVER,
+    database: process.env.DB2_DATABASE,
+    options: { encrypt: false, trustServerCertificate: true },
+  },
+};
+
+// Create and return new connection pool for a given db name
+async function getDbPool(dbName) {
+  const config = dbConfigs[dbName];
+  if (!config) throw new Error(`Invalid database name: ${dbName}`);
+
+  const pool = new sql.ConnectionPool(config);
+  await pool.connect();
+  return pool;
+}
+
+
+//new 120-2
+app.get('/api/120-2/scan-to-db-120-2', async (req, res) => {
+  const productOrderNo = req.query.productOrderNo;
+
+  if (!productOrderNo) {
+    return res.status(400).json({ success: false, message: 'Missing productOrderNo' });
+  }
+
+  try {
+    const pool = await getDbPool("db2");
+
+    // 🧪 DEBUG DB name
+    const dbNameResult = await pool.request().query('SELECT DB_NAME() AS dbName');
+    console.log('📌 Connected to DB:', dbNameResult.recordset[0].dbName);
+
+    // ✅ ตรวจสอบว่า table มีจริงไหม
+    const tableCheck = await pool.request().query(`
+      SELECT TOP 1 * 
+      FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'tb_ProductOrders'
+    `);
+
+    console.log('📌 Table exists:', tableCheck.recordset.length > 0);
+
+    const result = await pool.request()
+      .input('productOrderNo', sql.NVarChar, productOrderNo)
+      .query(`
+        SELECT productOrderNo, productName, ProcessLine 
+        FROM [NewFCXT(IM Thailand)].[dbo].[tb_ProductOrders] 
+        WHERE productOrderNo = @productOrderNo
+      `);
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    return res.json({ success: true, data: result.recordset[0] });
+  } catch (err) {
+    console.error('❌ DB Error:', err.message || err);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+//new 120-9
+app.get('/api/120-9/Partlist', async (req, res) => {
+  const line = req.query.line;
+  const model = req.query.model;
+
+  if (!line && !model) {
+    return res.status(400).json({ success: false, message: 'Missing line || model' });
+  }
+
+  try {
+    const pool = await getDbPool("db1");
+
+    const result = await pool.request()
+      .input('line', sql.NVarChar, line)
+      .input('model', sql.NVarChar, model)
+      .query(`
+                  SELECT TOP 1 
+              [id],
+              [PL_Line],
+              [PL_Id],
+              [PL_ModelName],
+              [PL_Rev],
+              [PL_PDF],
+              [PL_User],
+              [Datetime]
+          FROM [DASHBOARD].[dbo].[PARTLIST]
+          WHERE [PL_Line] = @line 
+            AND [PL_ModelName] = @model
+          ORDER BY [Datetime] DESC;
+      `);
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    return res.json({ success: true, data: result.recordset });
+  } catch (err) {
+    console.error('❌ DB Error:', err.message || err);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
+
+// Create CTE and join WI Table for NumID => lastRevision
+app.get("/api/Result/CteLatestRevisions", async (req, res) => {
+  const query = `
+            WITH LatestRevisions AS (
+            SELECT 
+                [W_NumberID],
+                MAX([W_Revision]) AS MaxRevision
+            FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]
+            GROUP BY [W_NumberID]
+        )
+
+          SELECT 
+              w.[id],w.[W_NumberID], 
+              w.[W_Revision], 
+              w.[W_DocName], 
+              w.[W_Dep], 
+              w.[W_Process], 
+              w.[W_PDFs], 
+              w.[W_name], 
+              w.[Datetime]
+          FROM [DASHBOARD].[dbo].[WORKINSTRUCTION] w
+          INNER JOIN LatestRevisions lr ON 
+              w.[W_NumberID] = lr.[W_NumberID] AND 
+              w.[W_Revision] = lr.[MaxRevision]
+          ORDER BY w.[W_NumberID], w.[W_Revision]
+  `;
+  try {
+    const data = await runQueryOnDb1(query);
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching Result:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
+
+
+
+
+// API: Get all WORKINSTRUCTION entries ordered by datetime desc
+app.get("/api/Result", async (req, res) => {
+  const query = `
+    SELECT [id], [W_NumberID], [W_Revision], [W_DocName], [W_Dep], [W_Process], [W_PDFs], [W_name], [Datetime]
+    FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]
+    ORDER BY [Datetime] DESC
+  `;
+  try {
+    const data = await runQueryOnDb1(query);
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching Result:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
+
+// API: Serve PDF file inline if path allowed
+app.get("/api/open-pdf", async (req, res) => {
+  const filePath = req.query.path;
+
+  // Whitelisted root directories
+  const allowedRoots = [
+    "\\\\192.168.120.9\\DataDocument",
+    "\\\\192.168.120.9\\DataPartList"
+  ];
+
+  // Check if filePath is under allowed roots
+  if (
+    !filePath ||
+    !allowedRoots.some((root) =>
+      path.resolve(filePath).startsWith(path.resolve(root))
+    )
+  ) {
+    return res.status(403).send("Access denied");
+  }
+
+  try {
+    const fileBuffer = await fs.readFile(filePath);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline; filename=document.pdf");
+    res.send(fileBuffer);
+  } catch (error) {
+    console.error("Error opening PDF:", error);
+    res.status(500).send("Error reading file");
+  }
+});
+
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
 });

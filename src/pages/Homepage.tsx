@@ -140,37 +140,7 @@ const Homepage = () => {
         };
     }, []);
 
-    // Generate once using useMemo
-    const svgCircles = useMemo(() => {
-        return Array.from({ length: 60 }).map((_, i) => {
-            const x = Math.random() * 100;
-            const delay = Math.random() * 5;
-            const duration = 6 + Math.random() * 4;
-            const radius = 6 + Math.random() * 12;
-            const opacity = 0.2 + Math.random() * 0.4;
-            const blur = 2 + Math.random() * 4;
-            return (
-                <circle
-                    key={i}
-                    cx={`${x}%`}
-                    cy="110%"
-                    r={radius}
-                    fill="white"
-                    fillOpacity={opacity}
-                    style={{ filter: `blur(${blur}px)` }}
-                >
-                    <animate
-                        attributeName="cy"
-                        from="110%"
-                        to="-10%"
-                        dur={`${duration}s`}
-                        begin={`${delay}s`}
-                        repeatCount="indefinite"
-                    />
-                </circle>
-            );
-        });
-    }, []);
+
 
     return (
         <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-10 bg-gradient-to-t from-sky-200 via-sky-100 to-[#fdfdfb]">
