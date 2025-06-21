@@ -100,7 +100,7 @@ const Main = () => {
         const pdfPath = data120_9?.PL_PDF;
         if (pdfPath) {
             const encodedPath = encodeURIComponent(pdfPath);
-            setPdfUrl(`http://192.168.130.240:5009/api/open-pdf?path=${encodedPath}`);
+            setPdfUrl(`/api/open-pdf?path=${encodedPath}`);
         }
     }, [data120_9]);
 
