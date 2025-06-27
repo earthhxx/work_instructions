@@ -24,7 +24,7 @@ const Homepage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get("/api/Result");
+                const res = await axios.get("/api/distinct-dep-proc")
                 setData(res.data);
             } catch (err) {
                 console.error("❌ Error fetching data:", err);
@@ -35,14 +35,17 @@ const Homepage = () => {
 
     const groups = useMemo(() => {
         if (!data) return [];
-        const departments = Array.from(new Set(data.map(d => d.W_Dep)));
-        return departments.map(dep => ({
-            department: dep,
-            processes: Array.from(
-                new Set(data.filter(d => d.W_Dep === dep && d.W_Process).map(d => d.W_Process))
-            ),
+        const map = new Map<string, Set<string>>();
+        data.forEach(({ W_Dep, W_Process }) => {
+            if (!map.has(W_Dep)) map.set(W_Dep, new Set());
+            map.get(W_Dep)?.add(W_Process);
+        });
+        return Array.from(map.entries()).map(([department, processes]) => ({
+            department,
+            processes: Array.from(processes),
         }));
     }, [data]);
+
 
     const handleClick = (dep: string, proc: string) => {
         localStorage.setItem(LOCAL_STORAGE_KEY, dep);

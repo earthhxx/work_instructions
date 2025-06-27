@@ -44,15 +44,32 @@ const dbConfigs = {
 };
 
 // Create and return new connection pool for a given db name
+const poolCache = {};
+
 async function getDbPool(dbName) {
   const config = dbConfigs[dbName];
   if (!config) throw new Error(`Invalid database name: ${dbName}`);
 
+  if (poolCache[dbName]?.connected) {
+    return poolCache[dbName];
+  }
+
   const pool = new sql.ConnectionPool(config);
-  await pool.connect();
-  return pool;
+  poolCache[dbName] = await pool.connect();
+  return poolCache[dbName];
 }
 
+async function runQueryOnDb1(query, inputs = []) {
+  const pool = await getDbPool("db1");
+  const request = pool.request();
+
+  for (const input of inputs) {
+    request.input(input.name, input.type, input.value);
+  }
+
+  const result = await request.query(query);
+  return result.recordset;
+}
 
 //new 120-2
 app.get('/api/120-2/scan-to-db-120-2', async (req, res) => {
@@ -179,21 +196,22 @@ app.get("/api/Result/CteLatestRevisions", async (req, res) => {
 
 
 
-// API: Get all WORKINSTRUCTION entries ordered by datetime desc
-app.get("/api/Result", async (req, res) => {
+// API: Get all WORKINSTRUCTION 
+app.get("/api/distinct-dep-proc", async (req, res) => {
   const query = `
-     SELECT [W_Dep], [W_Process]
+    SELECT DISTINCT [W_Dep], [W_Process]
     FROM [DASHBOARD].[dbo].[WORKINSTRUCTION]
-    ORDER BY [Datetime] DESC
+    ORDER BY [W_Dep], [W_Process]
   `;
   try {
     const data = await runQueryOnDb1(query);
     res.json(data);
   } catch (error) {
-    console.error("Error fetching Result:", error);
-    res.status(500).send("Error fetching data");
+    console.error("Error fetching distinct departments & processes:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
+
 
 // API: Serve PDF file inline if path allowed
 app.get("/api/open-pdf", async (req, res) => {
