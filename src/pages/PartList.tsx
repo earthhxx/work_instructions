@@ -3,7 +3,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import { BsUpcScan } from "react-icons/bs";
 import { GoCheckCircle } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import { Viewer, Worker} from "@react-pdf-viewer/core";
+import { Viewer} from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 
 import "@react-pdf-viewer/core/lib/styles/index.css";
@@ -170,13 +170,13 @@ const Main = () => {
                     >
                         ❌ ปิด PDF
                     </button>
-                    <Worker workerUrl="/pdf.worker.min.js">
+                    
                         <Viewer
                             fileUrl={pdfUrl}
                             defaultScale={3.0}
                             plugins={[defaultLayoutPluginInstance]}
                         />
-                    </Worker>
+                    
                 </div>
             </div>
         )
