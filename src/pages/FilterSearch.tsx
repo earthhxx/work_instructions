@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Viewer } from "@react-pdf-viewer/core";
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
-import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 
 interface DocumentType {
   id: number;
@@ -31,8 +29,6 @@ const App = () => {
     () => localStorage.getItem(LOCAL_STORAGE_KEY2) || null
   );
   const [selectedNumberID, setSelectedNumberID] = useState<string | null>(null);
-
-  const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
   const fetchData = async () => {
 
@@ -77,10 +73,26 @@ const App = () => {
     });
   }, [data, selectedDepartment, selectedProcess, selectedNumberID, searchTerm]);
 
-  const handleShowPdf = (PDFPATH: string) => {
-    const url = `http://192.168.120.9:5009/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`;
-    setPdfUrl(url);
+  const handleShowPdf = async (PDFPATH: string) => {
+
+    try {
+      const response = await axios.get(
+        `http://192.168.130.240:5009/api/open-pdf?path=${encodeURIComponent(PDFPATH)}`,
+        { responseType: "blob" }
+      );
+
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+
+      const blobUrl = URL.createObjectURL(response.data);
+      setPdfUrl(blobUrl); // <img src={pdfUrl} />
+    } catch (error) {
+      console.error("Error loading PNG image:", error);
+      alert("เกิดข้อผิดพลาดในการโหลดเอกสาร");
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col items-center px-4">
@@ -205,18 +217,20 @@ const App = () => {
               className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 z-50"
               onClick={() => setPdfUrl(null)}
             >
-              ❌ ปิด PDF
+              ❌ ปิดเอกสาร
             </button>
-            
-              <Viewer
-                fileUrl={pdfUrl}
-                defaultScale={1.0}
-                plugins={[defaultLayoutPluginInstance]}
-              />
 
+            <div className="w-full h-full overflow-auto">
+              <img
+                src={pdfUrl}
+                alt="PNG Preview"
+                className="max-w-full max-h-full object-contain mx-auto"
+              />
+            </div>
           </div>
         </div>
       )}
+
     </div>
   );
 };

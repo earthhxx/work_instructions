@@ -6,6 +6,7 @@ const sql = require("mssql");
 const fs = require("fs").promises;
 const path = require("path");
 const cors = require("cors");
+const { convert } = require("pdf-poppler");  // ใช้ convert ไม่ใช่ PdfConverter
 
 const app = express();
 app.use(cors());
@@ -215,36 +216,61 @@ app.get("/api/distinct-dep-proc", async (req, res) => {
 
 
 // API: Serve PDF file inline if path allowed
+
 app.get("/api/open-pdf", async (req, res) => {
+  console.log("🚀 [GET] /api/open-pdf called");
   const filePath = req.query.path;
 
-  // Whitelisted root directories
   const allowedRoots = [
     "\\\\192.168.120.9\\DataDocument",
-    "\\\\192.168.120.9\\DataPartList"
+    "\\\\192.168.120.9\\DataPartList",
   ];
 
-  // Check if filePath is under allowed roots
+  console.log("filePath:", filePath);
+  console.log("AllowedRoots:", allowedRoots);
+  console.log("Resolved filePath:", path.resolve(filePath));
+
   if (
     !filePath ||
     !allowedRoots.some((root) =>
       path.resolve(filePath).startsWith(path.resolve(root))
     )
   ) {
+    console.log("Access denied for path:", filePath);
     return res.status(403).send("Access denied");
   }
 
   try {
-    const fileBuffer = await fs.readFile(filePath);
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "inline; filename=document.pdf");
-    res.send(fileBuffer);
+    const outputDir = path.join(__dirname, "temp_pngs");
+    await fs.mkdir(outputDir, { recursive: true });
+
+    const options = {
+      format: "png",
+      out_dir: outputDir,
+      out_prefix: "output",
+      page: null,
+      dpi:150 
+    };
+
+    console.log("Converting PDF...");
+    await convert(filePath, options);
+    console.log("Conversion complete.");
+
+    const outputFile = path.join(outputDir, "output-1.png");
+    const imageBuffer = await fs.readFile(outputFile);
+    console.log("Sending PNG back.");
+
+    res.setHeader("Content-Type", "image/png");
+    res.send(imageBuffer);
+
+    setTimeout(() => {
+      fs.unlink(outputFile).catch(console.error);
+    }, 10000);
   } catch (error) {
-    console.error("Error opening PDF:", error);
-    res.status(500).send("Error reading file");
+    console.error("❌ Error converting PDF:", error);
+    res.status(500).send("Error converting PDF to PNG");
   }
 });
-
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
