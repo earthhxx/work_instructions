@@ -249,7 +249,7 @@ app.get("/api/open-pdf", async (req, res) => {
       out_dir: outputDir,
       out_prefix: "output",
       page: null,
-      dpi:150 
+      dpi:500,
     };
 
     console.log("Converting PDF...");
