@@ -3,11 +3,10 @@ import { Html5Qrcode } from "html5-qrcode";
 import { BsUpcScan } from "react-icons/bs";
 import { GoCheckCircle } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import { Viewer} from "@react-pdf-viewer/core";
+import { Viewer } from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import { SpecialZoomLevel } from '@react-pdf-viewer/core';
 
-import "@react-pdf-viewer/core/lib/styles/index.css";
-import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
 // Types
 type DataItem120_2 = {
@@ -47,7 +46,7 @@ const Main = () => {
     const fetchData120_2 = async () => {
         if (!productOrderNo) return;
 
-    
+
         try {
             const res = await fetch(`/api/120-2/scan-to-db-120-2?productOrderNo=${productOrderNo}`);
             const result = await res.json();
@@ -63,7 +62,7 @@ const Main = () => {
             alert("API 120-2 ผิดพลาด");
             navigate("/");
         } finally {
-    
+
         }
     };
 
@@ -170,13 +169,13 @@ const Main = () => {
                     >
                         ❌ ปิด PDF
                     </button>
-                    
-                        <Viewer
-                            fileUrl={pdfUrl}
-                            defaultScale={3.0}
-                            plugins={[defaultLayoutPluginInstance]}
-                        />
-                    
+
+                    <Viewer
+                        fileUrl={pdfUrl}
+                        defaultScale={SpecialZoomLevel.PageWidth} // หรือ SpecialZoomLevel.Container
+                        plugins={[defaultLayoutPluginInstance]}
+                    />
+
                 </div>
             </div>
         )
