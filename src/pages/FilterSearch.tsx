@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import { Suspense, lazy } from 'react';
+
 import axios from "axios";
-import { Viewer, Worker } from "@react-pdf-viewer/core";
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import '@react-pdf-viewer/default-layout/lib/styles/index.css';
-import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
-import { SpecialZoomLevel } from '@react-pdf-viewer/core';
+
 
 interface DocumentType {
   id: number;
@@ -20,6 +18,7 @@ interface DocumentType {
 const LOCAL_STORAGE_KEY = "selectedDepartment";
 const LOCAL_STORAGE_KEY2 = "selectedProcess";
 const CUSTOM_NUMBER_IDS = ['WI', 'FM', 'SD', 'QP', 'QM'];
+const LazyPdfViewer = lazy(() => import('../components/PdfViewer'));
 
 const App = () => {
   const [data, setData] = useState<DocumentType[]>([]);
@@ -32,8 +31,6 @@ const App = () => {
     () => localStorage.getItem(LOCAL_STORAGE_KEY2) || null
   );
   const [selectedNumberID, setSelectedNumberID] = useState<string | null>(null);
-
-  const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
   const fetchData = async () => {
 
@@ -208,13 +205,9 @@ const App = () => {
             >
               ❌ ปิด PDF
             </button>
-            <Worker workerUrl="/pdf.worker.min.js">
-              <Viewer
-                fileUrl={pdfUrl}
-                defaultScale={SpecialZoomLevel.PageWidth} // หรือ SpecialZoomLevel.Container
-                plugins={[defaultLayoutPluginInstance]}
-              />
-            </Worker>
+            <Suspense fallback={<div className="text-white text-center">Loading PDF...</div>}>
+              <LazyPdfViewer url={pdfUrl} />
+            </Suspense>
           </div>
         </div>
       )}

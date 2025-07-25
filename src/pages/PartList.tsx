@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy } from 'react';
+
 import { Html5Qrcode } from "html5-qrcode";
 import { BsUpcScan } from "react-icons/bs";
 import { GoCheckCircle } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import { Viewer ,Worker} from "@react-pdf-viewer/core";
-import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
-import { SpecialZoomLevel } from '@react-pdf-viewer/core';
-
 
 // Types
 type DataItem120_2 = {
@@ -32,6 +30,7 @@ const Main = () => {
     const [data120_2, setData120_2] = useState<DataItem120_2 | null>(null);
     const [data120_9, setData120_9] = useState<DataItem120_9 | null>(null);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const LazyPdfViewer = lazy(() => import('../components/PdfViewer'));
 
 
 
@@ -40,7 +39,6 @@ const Main = () => {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const navigate = useNavigate();
 
-    const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
     // ---------- Fetch Data 120-2 ----------
     const fetchData120_2 = async () => {
@@ -169,13 +167,9 @@ const Main = () => {
                     >
                         ❌ ปิด PDF
                     </button>
-                    <Worker workerUrl="/pdf.worker.min.js">
-                        <Viewer
-                            fileUrl={pdfUrl}
-                            defaultScale={SpecialZoomLevel.PageWidth} // หรือ SpecialZoomLevel.Container
-                            plugins={[defaultLayoutPluginInstance]}
-                        />
-                    </Worker>
+                    <Suspense fallback={<div className="text-white text-center">Loading PDF...</div>}>
+                        <LazyPdfViewer url={pdfUrl} />
+                    </Suspense>
                 </div>
             </div>
         )
