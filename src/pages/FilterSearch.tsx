@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Viewer } from "@react-pdf-viewer/core";
+import { Viewer, Worker } from "@react-pdf-viewer/core";
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
@@ -208,13 +208,13 @@ const App = () => {
             >
               ❌ ปิด PDF
             </button>
-
-            <Viewer
-              fileUrl={pdfUrl}
-              defaultScale={SpecialZoomLevel.PageWidth} // หรือ SpecialZoomLevel.Container
-              plugins={[defaultLayoutPluginInstance]}
-            />
-
+            <Worker workerUrl="/pdf.worker.min.js">
+              <Viewer
+                fileUrl={pdfUrl}
+                defaultScale={SpecialZoomLevel.PageWidth} // หรือ SpecialZoomLevel.Container
+                plugins={[defaultLayoutPluginInstance]}
+              />
+            </Worker>
           </div>
         </div>
       )}
