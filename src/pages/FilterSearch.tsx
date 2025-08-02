@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Suspense, lazy } from 'react';
+// import { Suspense, lazy } from 'react';
 
 import axios from "axios";
 
@@ -18,7 +18,7 @@ interface DocumentType {
 const LOCAL_STORAGE_KEY = "selectedDepartment";
 const LOCAL_STORAGE_KEY2 = "selectedProcess";
 const CUSTOM_NUMBER_IDS = ['WI', 'FM', 'SD', 'QP', 'QM'];
-const LazyPdfViewer = lazy(() => import('../components/PdfViewer'));
+// const LazyPdfViewer = lazy(() => import('../components/PdfViewer'));
 
 const App = () => {
   const [data, setData] = useState<DocumentType[]>([]);
@@ -196,7 +196,7 @@ const App = () => {
         </table>
       </div>
 
-      {pdfUrl && (
+      {/* {pdfUrl && (
         <div className="fixed h-full w-full bg-black bg-opacity-70 z-50 flex flex-col items-center justify-center">
           <div className="w-full h-full relative bg-white rounded-xl shadow-lg overflow-hidden">
             <button
@@ -210,7 +210,27 @@ const App = () => {
             </Suspense>
           </div>
         </div>
+      )} */}
+      {pdfUrl && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center">
+          <div className="relative w-[100vw] h-[100vh] bg-white rounded-xl shadow-lg overflow-hidden">
+            <button
+              onClick={() => setPdfUrl(null)}
+              className="absolute top-4 right-4 z-50 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              ❌ ปิด PDF
+            </button>
+            <iframe
+              src={pdfUrl}
+              title="PDF Viewer"
+              className="w-full h-full"
+              style={{ border: "none" }}
+              allowFullScreen
+            />
+          </div>
+        </div>
       )}
+
     </div>
   );
 };
