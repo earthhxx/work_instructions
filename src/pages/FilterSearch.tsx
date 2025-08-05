@@ -212,11 +212,11 @@ const App = () => {
         </div>
       )} */}
       {pdfUrl && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-70 z-49 flex items-center justify-center">
           <div className="relative w-[100vw] h-[100vh] bg-white rounded-xl shadow-lg overflow-hidden">
             <button
               onClick={() => setPdfUrl(null)}
-              className="absolute top-4 right-4 z-50 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              className="absolute top-4 right-4 z-49 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
               ❌ ปิด PDF
             </button>

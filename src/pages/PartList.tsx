@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Suspense, lazy } from 'react';
 
 import { Html5Qrcode } from "html5-qrcode";
 import { BsUpcScan } from "react-icons/bs";
@@ -30,7 +29,7 @@ const Main = () => {
     const [data120_2, setData120_2] = useState<DataItem120_2 | null>(null);
     const [data120_9, setData120_9] = useState<DataItem120_9 | null>(null);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-    const LazyPdfViewer = lazy(() => import('../components/PdfViewer'));
+
 
 
 
@@ -156,11 +155,11 @@ const Main = () => {
     // ---------- Render PDF ----------
     const renderPDF = () => (
         pdfUrl && (
-            <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black bg-opacity-70 z-49 flex items-center justify-center">
                 <div className="relative w-[100vw] h-[100vh] bg-white rounded-xl shadow-lg overflow-hidden">
                     <button
                         onClick={() => setPdfUrl(null)}
-                        className="absolute top-4 right-4 z-50 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                        className="absolute top-4 right-4 z-49 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
                     >
                         ❌ ปิด PDF
                     </button>
@@ -178,7 +177,7 @@ const Main = () => {
 
     // ---------- Render QR Scanner ----------
     const renderScanner = () => (
-        <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex items-center justify-center">
+        <div className="fixed inset-0  bg-black/20 backdrop-blur-sm flex items-center justify-center">
             <div
                 ref={cardRef}
                 className="size-[28rem] xl:size-[36rem] flex flex-col gap-4 bg-gray-800/70 p-6 rounded-2xl shadow-lg items-center"

@@ -71,6 +71,43 @@ async function runQueryOnDb1(query, inputs = []) {
   return result.recordset;
 }
 
+// ✅ POST: /api/report-issue
+app.post("/api/report", async (req, res) => {
+  const { name, department, description } = req.body;
+
+  if (!name || !department || !description) {
+    return res.status(400).json({
+      success: false,
+      message: "กรุณากรอกข้อมูลให้ครบถ้วน",
+    });
+  }
+
+  try {
+    const pool = await getDbPool("db1"); // <-- ใช้ DB2
+
+    await pool
+      .request()
+      .input("Name", sql.NVarChar(100), name)
+      .input("Department", sql.NVarChar(100), department)
+      .input("Description", sql.NVarChar(sql.MAX), description)
+      .query(`
+        INSERT INTO ReportIssues (Name, Department, Description)
+        VALUES (@Name, @Department, @Description)
+      `);
+
+    res.json({
+      success: true,
+      message: "บันทึกข้อมูลสำเร็จ",
+    });
+  } catch (error) {
+    console.error("❌ Error saving report:", error);
+    res.status(500).json({
+      success: false,
+      message: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+    });
+  }
+});
+
 //new 120-2
 app.get('/api/120-2/scan-to-db-120-2', async (req, res) => {
   const productOrderNo = req.query.productOrderNo;
@@ -84,7 +121,7 @@ app.get('/api/120-2/scan-to-db-120-2', async (req, res) => {
 
     // 🧪 DEBUG DB name
     const dbNameResult = await pool.request().query('SELECT DB_NAME() AS dbName');
-    console.log('📌 Connected to DB:', dbNameResult.recordset[0].dbName);
+    // console.log('📌 Connected to DB:', dbNameResult.recordset[0].dbName);
 
     // ✅ ตรวจสอบว่า table มีจริงไหม
     const tableCheck = await pool.request().query(`
@@ -93,7 +130,7 @@ app.get('/api/120-2/scan-to-db-120-2', async (req, res) => {
       WHERE TABLE_NAME = 'tb_ProductOrders'
     `);
 
-    console.log('📌 Table exists:', tableCheck.recordset.length > 0);
+    // console.log('📌 Table exists:', tableCheck.recordset.length > 0);
 
     const result = await pool.request()
       .input('productOrderNo', sql.NVarChar, productOrderNo)
