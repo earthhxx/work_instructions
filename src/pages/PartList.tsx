@@ -156,20 +156,21 @@ const Main = () => {
     // ---------- Render PDF ----------
     const renderPDF = () => (
         pdfUrl && (
-            <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center">
-                <div className="relative w-full h-full bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center">
+                <div className="relative w-[100vw] h-[100vh] bg-white rounded-xl shadow-lg overflow-hidden">
                     <button
-                        onClick={() => {
-                            setPdfUrl(null);
-                            navigate("/");
-                        }}
-                        className="absolute top-4 right-4 z-50 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                        onClick={() => setPdfUrl(null)}
+                        className="absolute top-4 right-4 z-50 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
                     >
                         ❌ ปิด PDF
                     </button>
-                    <Suspense fallback={<div className="text-white text-center">Loading PDF...</div>}>
-                        <LazyPdfViewer url={pdfUrl} />
-                    </Suspense>
+                    <iframe
+                        src={pdfUrl}
+                        title="PDF Viewer"
+                        className="w-full h-full"
+                        style={{ border: "none" }}
+                        allowFullScreen
+                    />
                 </div>
             </div>
         )
