@@ -25,7 +25,7 @@ export default function LazyPdfIframe({ pdfUrl }: { pdfUrl: string }) {
   }, []);
 
   return (
-    <div ref={iframeRef} className="w-full h-[80vh] border rounded shadow">
+    <div ref={iframeRef} className="w-full h-full border rounded shadow">
       {isVisible ? (
         <iframe
           src={pdfUrl}
