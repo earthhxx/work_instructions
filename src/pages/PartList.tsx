@@ -31,6 +31,7 @@ const Main = () => {
     const [data120_9, setData120_9] = useState<DataItem120_9 | null>(null);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const LazyPdfViewer = lazy(() => import('../components/PdfViewer'));
+    // const LazyPdfIframe = lazy(() => import('../components/LazyPdfiFrame')); // Assuming this is the correct path for LazyPdfIframe
 
 
 
@@ -170,6 +171,15 @@ const Main = () => {
                     <Suspense fallback={<div className="text-white text-center">Loading PDF...</div>}>
                         <LazyPdfViewer url={pdfUrl} />
                     </Suspense>
+                    {/* <Suspense fallback={<div>Loading PDF...</div>}>
+                        <iframe
+                            src={pdfUrl}
+                            title="PDF Viewer"
+                            className="w-full h-full"
+                            style={{ border: "none" }}
+                            allowFullScreen
+                        />
+                    </Suspense> */}
                 </div>
             </div>
         )
