@@ -54,7 +54,7 @@ const Homepage = () => {
     };
 
     const renderFilter = () => (
-        <div className="flex flex-col w-full bg-white/25 backdrop-blur-lg rounded-3xl shadow-2xl p-6 gap-6 items-center ring-1 ring-white/40 transition-transform duration-300">
+        <div className="flex flex-col w-full bg-white/25 rounded-3xl shadow-2xl p-6 gap-6 items-center ring-1 ring-white/40 transition-transform duration-300">
             <div className="bg-white/80 rounded-full shadow-md">
                 <img
                     src="/images/LOGO3.png"
