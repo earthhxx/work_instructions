@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface DocumentType {
@@ -19,7 +19,7 @@ const LOCAL_STORAGE_KEY2 = "selectedProcess";
 const Homepage = () => {
     const navigate = useNavigate();
     const [data, setData] = useState<DocumentType[] | null>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+    // const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -90,58 +90,58 @@ const Homepage = () => {
         </div>
     );
 
-    // Optimize particle animation
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-        let animationFrameId: number;
-        const particles = Array.from({ length: 40 }, () => ({
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            radius: 1 + Math.random() * 2,
-            dx: -0.5 + Math.random(),
-            dy: -0.5 + Math.random(),
-            alpha: 0.2 + Math.random() * 0.3,
-        }));
+    // // Optimize particle animation
+    // useEffect(() => {
+    //     const canvas = canvasRef.current;
+    //     if (!canvas) return;
+    //     const ctx = canvas.getContext("2d");
+    //     let animationFrameId: number;
+    //     const particles = Array.from({ length: 40 }, () => ({
+    //         x: Math.random() * window.innerWidth,
+    //         y: Math.random() * window.innerHeight,
+    //         radius: 1 + Math.random() * 2,
+    //         dx: -0.5 + Math.random(),
+    //         dy: -0.5 + Math.random(),
+    //         alpha: 0.2 + Math.random() * 0.3,
+    //     }));
 
-        const resize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
+    //     const resize = () => {
+    //         canvas.width = window.innerWidth;
+    //         canvas.height = window.innerHeight;
+    //     };
 
-        const drawParticles = () => {
-            if (!ctx) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (const p of particles) {
-                p.x += p.dx;
-                p.y += p.dy;
-                if (p.x < 0) p.x = canvas.width;
-                if (p.x > canvas.width) p.x = 0;
-                if (p.y < 0) p.y = canvas.height;
-                if (p.y > canvas.height) p.y = 0;
+    //     const drawParticles = () => {
+    //         if (!ctx) return;
+    //         ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //         for (const p of particles) {
+    //             p.x += p.dx;
+    //             p.y += p.dy;
+    //             if (p.x < 0) p.x = canvas.width;
+    //             if (p.x > canvas.width) p.x = 0;
+    //             if (p.y < 0) p.y = canvas.height;
+    //             if (p.y > canvas.height) p.y = 0;
 
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
-                ctx.fill();
-            }
+    //             ctx.beginPath();
+    //             ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    //             ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+    //             ctx.fill();
+    //         }
 
-            // throttle to ~30fps
-            setTimeout(() => {
-                animationFrameId = requestAnimationFrame(drawParticles);
-            }, 33);
-        };
+    //         // throttle to ~30fps
+    //         setTimeout(() => {
+    //             animationFrameId = requestAnimationFrame(drawParticles);
+    //         }, 33);
+    //     };
 
-        resize();
-        window.addEventListener("resize", resize);
-        drawParticles();
+    //     resize();
+    //     window.addEventListener("resize", resize);
+    //     drawParticles();
 
-        return () => {
-            window.removeEventListener("resize", resize);
-            cancelAnimationFrame(animationFrameId);
-        };
-    }, []);
+    //     return () => {
+    //         window.removeEventListener("resize", resize);
+    //         cancelAnimationFrame(animationFrameId);
+    //     };
+    // }, []);
 
 
 
@@ -157,7 +157,7 @@ const Homepage = () => {
             <div className="flex justify-center z-10 w-full max-w-[80%]">
                 {data ? renderFilter() : <p className="text-white text-xl">Loading...</p>}
             </div>
-            <canvas ref={canvasRef} className="absolute inset-0" />
+            {/* <canvas ref={canvasRef} className="absolute inset-0" /> */}
         </div>
     );
 };

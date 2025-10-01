@@ -18,8 +18,8 @@ interface DocumentType {
 const LOCAL_STORAGE_KEY = "selectedDepartment";
 const LOCAL_STORAGE_KEY2 = "selectedProcess";
 const CUSTOM_NUMBER_IDS = ['WI', 'FM', 'SD', 'QP', 'QM'];
-// const LazyPdfViewer = lazy(() => import('../components/PdfViewer'));
-const LazyPdfIframe = lazy(() => import('../components/LazyPdfiFrame')); // Assuming this is the correct path for LazyPdfIframe
+const LazyPdfViewer = lazy(() => import('../components/PdfViewer'));
+// const LazyPdfIframe = lazy(() => import('./components/LazyPdfiFrame')); // Assuming this is the correct path for LazyPdfIframe
 
 const App = () => {
   const [data, setData] = useState<DocumentType[]>([]);
@@ -206,12 +206,12 @@ const App = () => {
             >
               ❌ ปิด PDF
             </button>
-            {/* <Suspense fallback={<div className="text-white text-center">Loading PDF...</div>}>
+            <Suspense fallback={<div className="text-white text-center">Loading PDF...</div>}>
               <LazyPdfViewer url={pdfUrl} />
-            </Suspense> */}
-            <Suspense fallback={<div>Loading PDF...</div>}>
-              <LazyPdfIframe pdfUrl={pdfUrl} />
             </Suspense>
+            {/* <Suspense fallback={<div>Loading PDF...</div>}>
+              <LazyPdfIframe pdfUrl={pdfUrl} />
+            </Suspense> */}
           </div>
         </div>
       )}
